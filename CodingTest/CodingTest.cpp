@@ -1,55 +1,16 @@
 ﻿#include <iostream>
 #include <vector>
-#include <math.h>
+#include <queue>
 
 using namespace std;
 
-static int PowNum = 0;
-static vector<long long> IndexTree;
-static vector<long long> vecResult;
+static vector<vector<int>>		Tree;
+static vector<pair<int, int>>	DepthAndParent;
+static queue<int>				Queue;
+static vector<bool>				Visit;
 
-// 주어진 인덱스의 값을 Num로 변경하는 함수.
-void ChangeNumber(int iIndex, long long Num)
-{
-	int Idx = iIndex;
-	long long Diff = Num - IndexTree[Idx];
-
-	while (Idx > 0)
-	{
-		IndexTree[Idx] += Diff;
-		Idx /= 2;
-	}
-}
-
-// StartIndex부터 EndIndex의 합을 구하는 함수
-void GetSum(int StartIndex, int EndIndex)
-{
-	long long Sum = 0;
-
-	int StartIdx = StartIndex;
-	int EndIdx = EndIndex;
-
-	// StartIdx가 EndIdx보다 커질 때까지 지속.
-	while (StartIdx <= EndIdx)
-	{
-		if (StartIdx % 2 == 1)
-		{
-			Sum += IndexTree[StartIdx];
-			++StartIdx;
-		}
-
-		if (EndIdx % 2 == 0)
-		{
-			Sum += IndexTree[EndIdx];
-			--EndIdx;
-		}
-
-		StartIdx = StartIdx / 2;
-		EndIdx = EndIdx / 2;
-	}
-
-	vecResult.push_back(Sum);
-}
+void CalculateDepthAndParent();
+int FindResult(int IndexA, int IndexB);
 
 int main()
 {
@@ -57,59 +18,102 @@ int main()
 	cin.tie(NULL);
 	cout.tie(NULL);
 
+	int N, M;
+	cin >> N;
 
-	// N은 수의 개수, M은 수 변경 횟수, K는 구간의 합.
-	int N, M, K;
-	cin >> N >> M >> K;
+	Tree.resize(N + 1);
+	DepthAndParent.resize(N + 1);
+	Visit = vector<bool>(N + 1, false);
 
-	// IndexTree의 크기를 맞춰줘야 함.
-	// 2의 PowNum 승이 N보다 같거나 커질 때의 값을 구해야 함.
-	while (pow(2, PowNum) < N)
+	for (int i = 1; i < N; ++i)
 	{
-		++PowNum;
+		int a, b;
+		cin >> a >> b;
+
+		// 방향이 없기 때문에 양쪽에 저장.
+		Tree[a].push_back(b);
+		Tree[b].push_back(a);
 	}
 
-	// IndexTree의 크기는 2의 PowNum + 1 승으로 하면 됨. 
-	IndexTree = vector<long long>(pow(2, PowNum + 1), 0);
+	// DepthAndParent 구하기
+	CalculateDepthAndParent();
 
-	// 입력된 값은 리프 노드에 넣어주면 됨. 
-	for (int i = 0; i < N; ++i)
+	cin >> M;
+
+	for (int i = 0; i < M; ++i)
 	{
-		long long Input = 0;
-		cin >> Input;
-		IndexTree[i + pow(2, PowNum)] = Input;
-	}
-
-	// IndexTree의 앞 부분 채우기. Index 1이 루트 노드이기 때문에 0까지만 사용함. 
-	for (int i = IndexTree.size() - 1; i > 1; --i)
-	{
-		IndexTree[i / 2] += IndexTree[i];
-	}
-
-	// 이번엔 수의 변경 및 수의 합 출력 명령을 받고 처리한다. 
-	for (int i = 0; i < M + K; ++i)
-	{
-		long long a, b, c;
-		cin >> a >> b >> c;
-
-		// 수의 변경
-		if (a == 1)
-		{
-			// 1 ~ N의 수로 들어오는 b를 0 ~ N-1로 매핑하기 위해 -1을 해줌. 그리고, 2의 PowNum 승에 더해줌.
-			ChangeNumber(pow(2, PowNum) + b - 1, c);
-		} 
-
-		// 수의 합 출력
-		else if (a == 2)
-		{
-			GetSum(pow(2, PowNum) + b - 1, pow(2, PowNum) + c - 1);
-		}
-	}
-
-	for (long long i : vecResult)
-	{
-		cout << i << '\n';
+		int a, b;
+		cin >> a >> b;
+		cout << FindResult(a, b) << '\n';
 	}
 
 	return 0;
+}
+
+void CalculateDepthAndParent()
+{
+	// BFS를 이용해서 Depth와 Parent 구하기.
+	// 루트 노드 Queue에 추가
+	Queue.push(1);
+	Visit[1] = true;
+
+	int Count = 0;	// 현재 Depth에서 몇 개의 노드를 처리 했는지를 의미.
+	int Breadth = 1;	// 현재 레벨의 노드 개수.
+	int Depth = 1;
+
+	while (!Queue.empty())
+	{
+		// 현재 노드 인덱스.
+		int Index = Queue.front();
+		Queue.pop();
+
+		// Tree[Index]의 자식 노드들을 Queue에 넣어주기.
+		for (int i : Tree[Index])
+		{
+			// 미방문 노드만. 방문 처리를 해주고, 깊이와 부모 노드 기록.
+			if (!Visit[i])
+			{
+				Visit[i] = true;
+				Queue.push(i);
+				DepthAndParent[i] = make_pair(Depth, Index);
+			}
+		}
+
+		// 처리한 노드 수 + 1
+		++Count;
+
+		if (Count == Breadth)
+		{
+			Count = 0;
+			// 현재 레벨은 처리한 상태이기 때문에 Queue에는 다음 레벨의 노드만 남아있게 된다. 따라서 Breadth를 다음 레벨의 것으로 업데이트 하려면 단순히 Queue의 Size를 넣어주면 된다. 
+			Breadth = Queue.size();
+			++Depth;
+		}
+	}
+}
+
+int FindResult(int IndexA, int IndexB)
+{
+	int LeftNodeIdx = IndexA;
+	int RightNodeIdx = IndexB;
+
+	// 무조건 LeftNode가 더 깊거나 같은 레벨이도록 처리
+	if (DepthAndParent[LeftNodeIdx].first < DepthAndParent[RightNodeIdx].first)
+		swap(LeftNodeIdx, RightNodeIdx);
+
+	// 깊이가 같아질 때까지 반복. 
+	while (DepthAndParent[LeftNodeIdx].first != DepthAndParent[RightNodeIdx].first)
+	{
+		// LeftNodeIdx를 부모 노드로.
+		LeftNodeIdx = DepthAndParent[LeftNodeIdx].second;
+	}
+
+	// 같은 노드가 나올 때까지 반복.
+	while (LeftNodeIdx != RightNodeIdx)
+	{
+		LeftNodeIdx = DepthAndParent[LeftNodeIdx].second;
+		RightNodeIdx = DepthAndParent[RightNodeIdx].second;
+	}
+
+	return LeftNodeIdx;
 }
