@@ -97,7 +97,7 @@ int main()
 		{
 			// 1 ~ N의 수로 들어오는 b를 0 ~ N-1로 매핑하기 위해 -1을 해줌. 그리고, 2의 PowNum 승에 더해줌.
 			ChangeNumber(pow(2, PowNum) + b - 1, c);
-		}
+		} 
 
 		// 수의 합 출력
 		else if (a == 2)
