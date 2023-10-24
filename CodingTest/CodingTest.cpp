@@ -1,41 +1,54 @@
 ﻿#include <iostream>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
-// true면 상근이 false면 창영이.
-bool MyArr[1001];
+bool SecondSort(pair<int, int> a, pair<int, int> b)
+{
+	return a.second < b.second;
+}
 
 int main()
 {
-	ios::sync_with_stdio(false);
-	cin.tie(NULL);
-	cout.tie(NULL);
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+	
+	int N, X;
+	cin >> N >> X;
+	
+	vector<pair<int, int>> MyVector;
 
-	int N = 0;
-
-	cin >> N;
-
-	// 음... 1이 남으면 상근이가 이기고, 1 + 1 혹은 1 + 3이면 이김. 
-	MyArr[1] = true;
-	for (int i = 1; i <= 997; ++i)
+	for (int i = 0; i < N; ++i)
 	{
-		if (!MyArr[i])
+		int a;
+		cin >> a;
+
+		MyVector.push_back(make_pair(a, i));
+	}
+
+	sort(MyVector.begin(), MyVector.end());
+
+	int EndIdx = 0;
+
+	for (int i = 0; i < N; ++i)
+	{
+		// 처음으로 X 이상인게 나오면 i - 1까지만 출력하면 됨.
+		if (MyVector[i].first >= X)
 		{
-			MyArr[i + 1] = true;
-			MyArr[i + 3] = true;
+			EndIdx = i;
+			break;
 		}
 	}
 
-	if (!MyArr[998])
-		MyArr[999] = true;
+	// 입력 받은 순서로 다시 정렬
+	sort(MyVector.begin(), MyVector.begin() + EndIdx, SecondSort);
 
-	if (!MyArr[999])
-		MyArr[1000] = true;
-
-	if (MyArr[N])
-		cout << "SK";
-	else
-		cout << "CY";
+	for (int i = 0; i < EndIdx; ++i)
+	{
+		cout << MyVector[i].first << ' ';
+	}
 
 	return 0;
 }
