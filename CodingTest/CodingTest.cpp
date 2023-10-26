@@ -1,45 +1,61 @@
 ﻿#include <iostream>
-#include <string>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
 int main()
 {
-	ios::sync_with_stdio(0);
-	cin.tie(0);
-	cout.tie(0);
-	
-	int N, X;
-	cin >> N >> X;
-	
-	vector<pair<int, int>> MyVector;
+	int n, x;
+	cin >> n;
 
-	for (int i = 0; i < N; ++i)
+	vector<int> Numbers;
+
+	for (int i = 0; i < n; ++i)
 	{
 		int a;
 		cin >> a;
-
-		MyVector.push_back(make_pair(a, i));
+		Numbers.push_back(a);
 	}
 
-	int A, B, C;
-	cin >> A >> B >> C;
+	cin >> x;
 
-	int Num = A * B * C;
+	sort(Numbers.begin(), Numbers.end());
 
-	string S = to_string(Num);
+	int Result = 0;
 
-	int Result[10] = {};
-
-	for (char a : S)
+	// 음 퀵 소트처럼 탐색 대상을 절반씩 줄여나가서 nlogn이 되도록 해보자. 
+	for (int i = 0; i < n - 1; ++i)
 	{
-		++Result[a - '0'];
+		int Head = i + 1;
+		int Tail = n - 1;
+		int Pivot = (Head + Tail) / 2;
+
+		while (Head <= Tail)
+		{
+			int Sum = Numbers[i] + Numbers[Pivot];
+
+			if (Sum == x)
+			{
+				++Result;
+				break;
+			}
+
+			else if (Sum > x)
+			{
+				Tail = Pivot - 1;
+				Pivot = (Head + Tail) / 2;
+			}
+
+			else if (Sum < x)
+			{
+				Head = Pivot + 1;
+				Pivot = (Head + Tail) / 2;
+			}
+		}
 	}
 
-	for (int i : Result)
-	{
-		cout << i << '\n';
-	}
+	cout << Result;
 
 	return 0;
 }
