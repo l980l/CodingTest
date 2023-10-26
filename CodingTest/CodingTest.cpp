@@ -1,9 +1,7 @@
 ﻿#include <iostream>
+#include <string>
 
 using namespace std;
-
-// true면 상근이 false면 창영이.
-bool MyArr[1001];
 
 int main()
 {
@@ -11,31 +9,24 @@ int main()
 	cin.tie(NULL);
 	cout.tie(NULL);
 
-	int N = 0;
+	int A, B, C;
+	cin >> A >> B >> C;
 
-	cin >> N;
+	int Num = A * B * C;
 
-	// 음... 1이 남으면 상근이가 이기고, 1 + 1 혹은 1 + 3이면 이김. 
-	MyArr[1] = true;
-	for (int i = 1; i <= 997; ++i)
+	string S = to_string(Num);
+
+	int Result[10] = {};
+
+	for (char a : S)
 	{
-		if (!MyArr[i])
-		{
-			MyArr[i + 1] = true;
-			MyArr[i + 3] = true;
-		}
+		++Result[a - '0'];
 	}
 
-	if (!MyArr[998])
-		MyArr[999] = true;
-
-	if (!MyArr[999])
-		MyArr[1000] = true;
-
-	if (MyArr[N])
-		cout << "SK";
-	else
-		cout << "CY";
+	for (int i : Result)
+	{
+		cout << i << '\n';
+	}
 
 	return 0;
 }
