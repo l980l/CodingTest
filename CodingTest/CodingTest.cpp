@@ -1,65 +1,48 @@
 ﻿#include <iostream>
-#include <list>
+#include <stack>
 
 using namespace std;
-
-void DeleteK(int K);
-
-static list<int> MyList;
-static list<int>::iterator iter;
 
 int main()
 {
 	ios::sync_with_stdio(0);
 	cin.tie(0);
-	cout.tie(0);
 
-	int N, K;
-	cin >> N >> K;
+	int K;
+	cin >> K;
 
-	// 초기 세팅
-	for (int i = 1; i <= N; ++i)
-	{
-		MyList.push_back(i);
-	}
-	iter = MyList.begin();
+	stack<int> Stack;
 
-	cout << "<";
-
-	while (true)
-	{
-		DeleteK(K);
-
-		if (MyList.empty())
-		{
-			cout << ">";
-			break;
-		}
-
-		else
-			cout << ", ";
-	}
-
-	return 0;
-}
-
-void DeleteK(int K)
-{
-	// 음... K가 1부터 N번째로 값이 들어오는데 iter는 처음부터 1번째니까, 1 이상까지만 더해줘야 할듯.
-	while (K > 1)
+	while (K > 0)
 	{
 		--K;
-		++iter;
 
-		// 맨 뒤로 갔으면 다시 맨 앞으로 이동.
-		if (iter == MyList.end())
-			iter = MyList.begin();
+		int a;
+		cin >> a;
+
+		// Top을 지운다.
+		if (a == 0)
+		{
+			Stack.pop();
+		}
+
+		// Push를 한다. 
+		else
+		{
+			Stack.push(a);
+		}
+	}
+	
+	int Sum = 0;
+
+	// 총 합을 구한다.
+	while (!Stack.empty())
+	{
+		Sum += Stack.top();
+		Stack.pop();
 	}
 
-	cout << *iter;
-	iter = MyList.erase(iter);
+	cout << Sum;
 
-	// 맨 뒤로 갔으면 다시 맨 앞으로 이동.
-	if (iter == MyList.end())
-		iter = MyList.begin();
+	return 0;
 }
