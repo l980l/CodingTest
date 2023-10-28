@@ -1,76 +1,65 @@
-﻿#include <iostream>	
+﻿#include <iostream>
+#include <list>
 
 using namespace std;
+
+void DeleteK(int K);
+
+static list<int> MyList;
+static list<int>::iterator iter;
 
 int main()
 {
 	ios::sync_with_stdio(0);
-	cin.tie(NULL);
+	cin.tie(0);
+	cout.tie(0);
 
-	// 음... 문제가 스택을 구현라고 했으니까 STL 쓰지 말고 직접 구현해야겠지? 음... 그냥 배열로 구현하면 되겠지?
-	int ArrStack[10000];	// 명령이 최대 10000개라서 스택도 최대 10000개임.
-	int Top = -1;			// 꼭대기. 전부 비어있다면 -1.
+	int N, K;
+	cin >> N >> K;
 
-	// 명령어 개수
-	int N;
-	cin >> N;
-
-	while (N > 0)
+	// 초기 세팅
+	for (int i = 1; i <= N; ++i)
 	{
-		--N;
+		MyList.push_back(i);
+	}
+	iter = MyList.begin();
 
-		string S;
-		cin >> S;
+	cout << "<";
 
-		if (S == "push")
+	while (true)
+	{
+		DeleteK(K);
+
+		if (MyList.empty())
 		{
-			int X;
-			cin >> X;
-
-			ArrStack[Top + 1] = X;
-			Top++;
+			cout << ">";
+			break;
 		}
 
-		else if (S == "pop")
-		{
-			// 비어있지 않다면
-			if (Top != -1)
-			{
-				cout << ArrStack[Top] << "\n";
-				Top--;
-			}
-
-			// 비어있다면
-			else
-				cout << -1 << "\n";
-		}
-
-		else if (S == "size")
-		{
-			cout << Top + 1 << "\n";
-		}
-
-		else if (S == "empty")
-		{
-			if (Top == -1)
-				cout << 1 << "\n";
-			else
-				cout << 0 << "\n";
-		}
-
-		else if (S == "top")
-		{
-			// 비어있지 않다면
-			if (Top != -1)
-			{
-				cout << ArrStack[Top] << "\n";
-			}
-
-			// 비어있다면
-			else
-				cout << -1 << "\n";
-		}
+		else
+			cout << ", ";
 	}
 
 	return 0;
+}
+
+void DeleteK(int K)
+{
+	// 음... K가 1부터 N번째로 값이 들어오는데 iter는 처음부터 1번째니까, 1 이상까지만 더해줘야 할듯.
+	while (K > 1)
+	{
+		--K;
+		++iter;
+
+		// 맨 뒤로 갔으면 다시 맨 앞으로 이동.
+		if (iter == MyList.end())
+			iter = MyList.begin();
+	}
+
+	cout << *iter;
+	iter = MyList.erase(iter);
+
+	// 맨 뒤로 갔으면 다시 맨 앞으로 이동.
+	if (iter == MyList.end())
+		iter = MyList.begin();
 }
