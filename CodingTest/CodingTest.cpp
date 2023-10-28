@@ -1,60 +1,75 @@
-﻿#include <iostream>
-#include <vector>
-#include <list>
+﻿#include <iostream>	
 
 using namespace std;
 
 int main()
 {
 	ios::sync_with_stdio(0);
-	cin.tie(0);
-	cout.tie(0);
+	cin.tie(NULL);
 
-	int n;
-	cin >> n;
-	
-	vector<string> S(n);
-	for (int i = 0; i < n; ++i)
+	// 음... 문제가 스택을 구현라고 했으니까 STL 쓰지 말고 직접 구현해야겠지? 음... 그냥 배열로 구현하면 되겠지?
+	int ArrStack[10000];	// 명령이 최대 10000개라서 스택도 최대 10000개임.
+	int Top = -1;			// 꼭대기. 전부 비어있다면 -1.
+
+	// 명령어 개수
+	int N;
+	cin >> N;
+
+	while (N > 0)
 	{
-		cin >> S[i];
-	}
+		--N;
 
-	// 음... 각 테스트 케이스에 대해 list 만들어서 비밀번호 도출.
-	for (int i = 0; i < n; ++i)
-	{
-		list<char> TestCase;
-		auto iter = TestCase.end();	// 커서 위치.
+		string S;
+		cin >> S;
 
-		for (char C : S[i])
+		if (S == "push")
 		{
-			if (C == '<')
-			{
-				if (iter != TestCase.begin())
-					--iter;
-			}
+			int X;
+			cin >> X;
 
-			else if (C == '>')
-			{
-				if (iter != TestCase.end())
-					++iter;
-			}
-
-			else if (C == '-')
-			{
-				if (iter != TestCase.begin())
-					iter = TestCase.erase(--iter);
-			}
-
-			else
-			{
-				TestCase.insert(iter, C);
-			}
+			ArrStack[Top + 1] = X;
+			Top++;
 		}
 
-		for (char C : TestCase)
-			cout << C;
+		else if (S == "pop")
+		{
+			// 비어있지 않다면
+			if (Top != -1)
+			{
+				cout << ArrStack[Top] << "\n";
+				Top--;
+			}
 
-		cout << '\n';
+			// 비어있다면
+			else
+				cout << -1 << "\n";
+		}
+
+		else if (S == "size")
+		{
+			cout << Top + 1 << "\n";
+		}
+
+		else if (S == "empty")
+		{
+			if (Top == -1)
+				cout << 1 << "\n";
+			else
+				cout << 0 << "\n";
+		}
+
+		else if (S == "top")
+		{
+			// 비어있지 않다면
+			if (Top != -1)
+			{
+				cout << ArrStack[Top] << "\n";
+			}
+
+			// 비어있다면
+			else
+				cout << -1 << "\n";
+		}
 	}
 
 	return 0;
