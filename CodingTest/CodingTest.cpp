@@ -32,7 +32,7 @@ int main()
 		Building.push(Height);
 		Step++;
 	}
-	Building.size();
+
 	cout << Sum;
 
 	return 0;
