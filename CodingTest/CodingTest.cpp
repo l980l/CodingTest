@@ -1,6 +1,5 @@
 ﻿#include <iostream>
 #include <stack>
-#include <vector>
 
 using namespace std;
 
@@ -12,44 +11,29 @@ int main()
 	int N;
 	cin >> N;
 
-	// 음 해보니까 입력된 순서를 인덱스로 해서 출력하니까 쌍으로 묶어서 저장해야 될듯?
-	stack<pair<int, int>> Tower;
+	long long Sum = 0;
 
-	int Temp;
-	cin >> Temp;
-	int Idx = 1;
-	Tower.push(make_pair(Temp, Idx));
-	cout << 0 << " ";
-	N -= 1;
+	stack<long long> Building;
+	Building.push(1000000001);
+	int Step = 0;
 
 	while (N--)
 	{
-		int Temp;
-		cin >> Temp;
-		Idx++;
+		long long Height;
+		cin >> Height;
 
-		while (!Tower.empty())
+		while (Building.top() <= Height)
 		{
-			if (Tower.top().first > Temp)
-			{
-				cout << Tower.top().second << " ";
-				Tower.push(make_pair(Temp, Idx));
-				break;
-			}
-
-			else if (Tower.top().first < Temp)
-			{
-				Tower.pop();
-
-				if (Tower.empty())
-				{
-					Tower.push(make_pair(Temp, Idx));
-					cout << 0 << " ";
-					break;
-				}
-			}
+			Building.pop();
+			Step--;
 		}
+
+		Sum += Step;
+		Building.push(Height);
+		Step++;
 	}
+	Building.size();
+	cout << Sum;
 
 	return 0;
 }
