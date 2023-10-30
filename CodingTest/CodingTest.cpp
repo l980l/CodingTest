@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include <deque>
+#include <string>
 
 using namespace std;
 
@@ -8,64 +9,91 @@ int main()
 	ios::sync_with_stdio(0);
 	cin.tie(0);
 
-	int N, M;
-	cin >> N >> M;
-	
-	int Sum = 0;
+	int T;
+	cin >> T;
 
-	// 덱에 1~N 넣기.
-	deque<int> Deque;
-	for (int i = 1; i <= N; ++i)
+	for (int i = 0; i < T; ++i)
 	{
-		Deque.push_back(i);
-	}
+		string S = "";
+		cin >> S;
 
-	while (M--)
-	{
-		int a;
-		cin >> a;
+		int n;
+		cin >> n;
 
-		int Idx = 0;
-		while (!Deque.empty())
+		// '[' 받고 버림
+		char temp;
+		cin >> temp;
+
+		// Deque에 원소 넣기
+		deque<int> Deque(n);
+		for (int i = 0; i < n; ++i)
 		{
-			if (Deque.at(Idx) == a)
+			int a;
+			cin >> a;
+			Deque[i] = a;
+
+			// ']'나 ',' 받고 버림
+			cin >> temp;
+		}
+
+		// n이 0일때
+		if(!n)
+			cin >> temp;
+
+		bool bFront = true;
+		bool bError = false;
+
+		// 명령 수행.
+		for (char c : S)
+		{
+			// 뒤집기
+			if (c == 'R')
 			{
-				Sum += Idx;
-
-				// 맨 앞으로 옮기고
-				while (Idx--)
-				{
-					Deque.push_back(Deque.front());
-					Deque.pop_front();
-				}
-
-				// 맨 앞 팝.
-				Deque.pop_front();
-				break;
+				if (bFront)
+					bFront = false;
+				else
+					bFront = true;
 			}
 
-			else if (Deque.at(Deque.size() - 1 - Idx) == a)
+			// 버리기
+			else if (c == 'D')
 			{
-				++Idx;
-				Sum += Idx;
-
-				// 맨 앞으로 옮기고
-				while (Idx--)
+				if (Deque.empty())
 				{
-					Deque.push_front(Deque.back());
-					Deque.pop_back();
+					cout << "error" << "\n";
+					bError = true;
+					break;
 				}
 
-				// 맨 앞 팝.
-				Deque.pop_front();
-				break;
+				else
+				{
+					// pop_front
+					if (bFront)
+						Deque.pop_front();
+					
+					// pop_back
+					else
+						Deque.pop_back();
+				}
 			}
+		}
 
-			Idx++;
+		if (!bError)
+		{
+			cout << "[";
+			for (int i = 0; i < Deque.size(); ++i)
+			{
+				if(bFront)
+					cout << Deque[i];
+				else
+					cout << Deque[Deque.size() - 1 - i];
+
+				if (i != Deque.size() - 1)
+					cout << ",";
+			}
+			cout << "]" << "\n";
 		}
 	}
-
-	cout << Sum;
 
 	return 0;
 }
