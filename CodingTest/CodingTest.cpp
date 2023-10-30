@@ -1,5 +1,5 @@
 ﻿#include <iostream>
-#include <stack>
+#include <queue>
 
 using namespace std;
 
@@ -11,29 +11,65 @@ int main()
 	int N;
 	cin >> N;
 
-	long long Sum = 0;
-
-	stack<long long> Building;
-	Building.push(1000000001);
-	int Step = 0;
+	queue<int> Queue;
 
 	while (N--)
 	{
-		long long Height;
-		cin >> Height;
+		string S;
+		cin >> S;
 
-		while (Building.top() <= Height)
+		if (S == "push")
 		{
-			Building.pop();
-			Step--;
+			int a;
+			cin >> a;
+
+			Queue.push(a);
 		}
 
-		Sum += Step;
-		Building.push(Height);
-		Step++;
-	}
+		else if (S == "front")
+		{
+			if (Queue.empty())
+				cout << -1 << "\n";
 
-	cout << Sum;
+			else
+				cout << Queue.front() << "\n";
+		}
+
+		else if (S == "back")
+		{
+			if (Queue.empty())
+				cout << -1 << "\n";
+
+			else
+				cout << Queue.back() << "\n";
+		}
+
+		else if (S == "pop")
+		{
+			if (Queue.empty())
+				cout << -1 << "\n";
+
+			else
+			{
+				cout << Queue.front() << "\n";
+				Queue.pop();
+			}
+		}
+
+		else if (S == "size")
+		{
+			cout << Queue.size() << "\n";
+		}
+
+		else if (S == "empty")
+		{
+			if (Queue.empty())
+				cout << 1 << "\n";
+
+			else
+				cout << 0 << "\n";
+		}
+	}
 
 	return 0;
 }
