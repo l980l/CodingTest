@@ -1,5 +1,5 @@
 ﻿#include <iostream>
-#include <queue>
+#include <deque>
 
 using namespace std;
 
@@ -11,63 +11,78 @@ int main()
 	int N;
 	cin >> N;
 
-	queue<int> Queue;
+	deque<int> Deque;
 
 	while (N--)
 	{
 		string S;
 		cin >> S;
 
-		if (S == "push")
+		if (S == "push_front")
 		{
 			int a;
 			cin >> a;
 
-			Queue.push(a);
+			Deque.push_front(a);
 		}
 
-		else if (S == "front")
+		else if (S == "push_back")
 		{
-			if (Queue.empty())
-				cout << -1 << "\n";
+			int a;
+			cin >> a;
 
-			else
-				cout << Queue.front() << "\n";
+			Deque.push_back(a);
 		}
 
-		else if (S == "back")
+		else if (S == "pop_front")
 		{
-			if (Queue.empty())
+			if (Deque.empty())
 				cout << -1 << "\n";
-
-			else
-				cout << Queue.back() << "\n";
-		}
-
-		else if (S == "pop")
-		{
-			if (Queue.empty())
-				cout << -1 << "\n";
-
 			else
 			{
-				cout << Queue.front() << "\n";
-				Queue.pop();
+				cout << Deque.front() << "\n";
+				Deque.pop_front();
+			}
+		}
+
+		else if (S == "pop_back")
+		{
+			if (Deque.empty())
+				cout << -1 << "\n";
+			else
+			{
+				cout << Deque.back() << "\n";
+				Deque.pop_back();
 			}
 		}
 
 		else if (S == "size")
 		{
-			cout << Queue.size() << "\n";
+			cout << Deque.size() << "\n";
 		}
 
 		else if (S == "empty")
 		{
-			if (Queue.empty())
+			if (Deque.empty())
 				cout << 1 << "\n";
-
 			else
 				cout << 0 << "\n";
+		}
+
+		else if (S == "front")
+		{
+			if (Deque.empty())
+				cout << -1 << "\n";
+			else
+				cout << Deque.front() << "\n";
+		}
+
+		else if (S == "back")
+		{
+			if (Deque.empty())
+				cout << -1 << "\n";
+			else
+				cout << Deque.back() << "\n";
 		}
 	}
 
