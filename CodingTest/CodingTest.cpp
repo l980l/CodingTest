@@ -1,5 +1,6 @@
 ﻿#include <iostream>
-#include <stack>	
+#include <queue>
+#include <vector>
 
 using namespace std;
 
@@ -8,157 +9,70 @@ int main()
 	ios::sync_with_stdio(0);
 	cin.tie(0);
 
-	string S;
-	cin >> S;
+	int n, m;
+	cin >> n >> m;
 
-	long long Result = 0;
-	bool bWrong = false;
+	int PaintCount = 0;
+	int max = 0;
 
-	stack<long long> Stack;
+	int dx[4] = { 1, 0, -1, 0 };
+	int dy[4] = { 0, 1, 0, -1 };
 
-	for (char c : S)
+	vector<vector<int>> Board(n, vector<int>(m));
+	vector<vector<bool>> Visit(n, vector<bool>(m));
+	queue<pair<int, int>> Queue;
+
+	for (int i = 0; i < n; ++i)
 	{
-		if (c == '(')
-			Stack.push('(');
-
-		else if (c == '[')
-			Stack.push('[');
-
-		else if (c == ')')
+		for (int j = 0; j < m; ++j)
 		{
-			if (Stack.empty())
-			{
-				bWrong = true;
-				break;
-			}
-
-			else if (Stack.top() == '(')
-			{
-				Stack.pop();
-
-				// top이 숫자인 경우 +2를 해준다. 
-				if (!Stack.empty() && Stack.top() != '(' && Stack.top() != '[' && Stack.top() != ')' && Stack.top() != ']')
-				{
-					// 음 이게 잘 되려나.
-					long long A = Stack.top() - '0';
-					A += 2;
-					Stack.pop();
-					char B = A + '0';
-					Stack.push(B);
-				}
-
-				// Stack이 비어있다면 Result에 2 더해주기.
-				else if (Stack.empty())
-					Result += 2;
-				
-				// top이 숫자가 아니면 2를 넣어준다. 
-				else
-					Stack.push('2');
-			}
-
-			// top이 숫자인 경우
-			else
-			{
-				long long Temp = 0;
-
-				while (Stack.top() != '(')
-				{
-					// top이 숫자인 경우 Temp에 다 누적해서 더해준 다음 *2를 해준다. 
-					if (Stack.top() != '[' && Stack.top() != ')' && Stack.top() != ']')
-					{
-						// 음 이게 잘 되려나.
-						long long A = Stack.top() - '0';
-						Temp += A;
-						Stack.pop();
-					}
-
-					else
-					{
-						bWrong = true;
-						break;
-					}
-				}
-				
-				Stack.pop();
-				Temp *= 2;
-
-				if (Stack.empty())
-					Result += Temp;
-				else
-					Stack.push(Temp + '0');
-			}
+			int a;
+			cin >> a;
+			Board[i][j] = a;
 		}
+	}
 
-		else if (c == ']')
+	for (int i = 0; i < n; ++i)
+	{
+		for (int j = 0; j < m; ++j)
 		{
-			if (Stack.empty())
+			if (!Visit[i][j] && Board[i][j])
 			{
-				bWrong = true;
-				break;
-			}
+				// 그림 개수 늘리기.
+				PaintCount++;
 
-			else if (Stack.top() == '[')
-			{
-				Stack.pop();
+				Visit[i][j] = true;
+				Queue.push({ i,j });
 
-				if (!Stack.empty() && Stack.top() != '(' && Stack.top() != '[' && Stack.top() != ')' && Stack.top() != ']')
+				int temp = 1;
+
+				while (!Queue.empty())
 				{
-					// 음 이게 잘 되려나.
-					long long A = Stack.top() - '0';
-					A += 3;
-					Stack.pop();
-					char B = A + '0';
-					Stack.push(B);
-				}
+					pair<int, int> Pair = Queue.front();
+					Queue.pop();
 
-				// Stack이 비어있다면 Result에 3 더해주기.
-				else if (Stack.empty())
-					Result += 3;
-
-				// top이 숫자가 아니면 3를 넣어준다. 
-				else
-					Stack.push('3');
-			}
-
-			// top이 숫자인 경우
-			else
-			{
-				long long Temp = 0;
-
-				while (Stack.top() != '[')
-				{
-					// top이 숫자인 경우 Temp에 다 누적해서 더해준 다음 *3를 해준다. 
-					if (Stack.top() != '(' && Stack.top() != '[' && Stack.top() != ')' && Stack.top() != ']')
+					for (int i = 0; i < 4; ++i)
 					{
-						// 음 이게 잘 되려나.
-						long long A = Stack.top() - '0';
-						Temp += A;
-						Stack.pop();
-					}
+						if (Pair.first + dx[i] < 0 || Pair.first + dx[i] >= n || Pair.second + dy[i] < 0 || Pair.second + dy[i] >= m)
+							continue;
 
-					else
-					{
-						bWrong = true;
-						break;
+						else if (Board[Pair.first + dx[i]][Pair.second + dy[i]] && !Visit[Pair.first + dx[i]][Pair.second + dy[i]])
+						{
+							Queue.push({ Pair.first + dx[i], Pair.second + dy[i] });
+							Visit[Pair.first + dx[i]][Pair.second + dy[i]] = true;
+							temp++;
+						}
 					}
 				}
 
-				Stack.pop();
-				Temp *= 3;
-
-				if (Stack.empty())
-					Result += Temp;
-				else
-					Stack.push(Temp + '0');
+				if (max < temp)
+					max = temp;
 			}
 		}
 	}
 
-	// 잘못된 괄호열인 경우
-	if (bWrong)
-		cout << 0;
-	else
-		cout << Result;
+	cout << PaintCount << "\n";
+	cout << max << "\n";
 
 	return 0;
 }
