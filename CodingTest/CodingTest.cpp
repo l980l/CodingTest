@@ -8,29 +8,41 @@ int main()
 	ios::sync_with_stdio(0);
 	cin.tie(0);
 
-	int N;
-	cin >> N;
+	stack<char> Stack;
 
+	string S;
+	cin >> S;
+
+	int Step = 0;
 	int Result = 0;
 
-	while (N--)
+	for (char c : S)
 	{
-		stack<char> Stack;
-
-		string S;
-		cin >> S;
-
-		for (char c : S)
+		if (c == '(')
 		{
-			if (!Stack.empty() && Stack.top() == c)
-				Stack.pop();
-
-			else
-				Stack.push(c);
+			// 일단 쇠 막대기의 시작이라고 생각을 해.
+			Step++;
+			Stack.push('(');
 		}
 
-		if (Stack.empty())
-			Result++;
+		else
+		{
+			// 막대기의 끝인것.
+			if (!Stack.empty() && Stack.top() == c)
+			{
+				Step--;
+				Result++;
+				Stack.push(')');
+			}
+
+			// 레이저인것.
+			else if (!Stack.empty() && Stack.top() != c)
+			{
+				Step--;
+				Result += Step;
+				Stack.push(')');
+			}
+		}
 	}
 
 	cout << Result;
