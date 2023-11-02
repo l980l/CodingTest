@@ -91,6 +91,7 @@ int main()
 					// 벽인 경우 
 					if (SDistance[nx2][ny2] == -1)
 						continue;
+					// 왔던 곳 경우
 					if (nx2 == Pair.first && ny2 == Pair.second)
 						continue;
 					// 출발 위치로부터 벽까지의 거리 + 도착 위치로부터 벽까지의 거리 + 1. 이전에 구해둔 값이 있는 경우, 더 작은 값으로 변경.
