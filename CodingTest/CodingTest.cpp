@@ -9,38 +9,48 @@ int main()
 	ios::sync_with_stdio(0);
 	cin.tie(0);
 
-	int T, M, N, K;
-	cin >> T;
-	while (T--)
+	int N;
+	cin >> N;
+
+	vector<vector<char>> Board(N, vector<char>(N));
+	vector<vector<char>> SpecialBoard(N, vector<char>(N));
+	vector<vector<char>> GeneralVisit(N, vector<char>(N));
+	vector<vector<char>> SpecialVisit(N, vector<char>(N));
+	int dx[4] = { 0,1,0,-1 };
+	int dy[4] = { 1,0,-1,0 };
+
+	for (int i = 0; i < N; ++i)
 	{
-		cin >> M >> N >> K;
-		vector <vector<int>> Board(N, vector<int>(M));
-		vector <vector<int>> Visit(N, vector<int>(M));
-		int dx[4] = { 0,1,-1,0 };
-		int dy[4] = { 1,0,0,-1 };
-
-		for (int i = 0; i < K; ++i)
+		string S;
+		cin >> S;
+		for (int j = 0; j < N; ++j)
 		{
-			int X, Y;
-			cin >> X >> Y;
-
-			Board[Y][X] = 1;
-			Visit[Y][X] = 0;
+			Board[i][j] = S[j];
+			if (S[j] == 'G')
+				SpecialBoard[i][j] = 'R';
+			else
+				SpecialBoard[i][j] = S[j];
+			GeneralVisit[i][j] = 0;
+			SpecialVisit[i][j] = 0;
 		}
+	}
 
-		int Result = 0;
+	int GeneralResult = 0;		// 일반인용
+	int SpecialResult = 0;		// 적록색약용
 
-		queue<pair<int, int>> Queue;
+	for (char Key : {'R', 'G', 'B'})
+	{
 		for (int i = 0; i < N; ++i)
 		{
-			for (int j = 0; j < M; ++j)
+			for (int j = 0; j < N; ++j)
 			{
-				// 방문하지 않은 배추.
-				if (Board[i][j] == 1 && Visit[i][j] == 0)
+				// 일반인용
+				if (Board[i][j] == Key && GeneralVisit[i][j] == 0)
 				{
-					Result++;
+					GeneralResult++;
+					queue<pair<int, int>> Queue;
+					GeneralVisit[i][j] = 1;
 					Queue.push({ i,j });
-					Visit[i][j] = 1;
 					while (!Queue.empty())
 					{
 						auto Pair = Queue.front();
@@ -51,19 +61,47 @@ int main()
 							int nx = Pair.first + dx[i];
 							int ny = Pair.second + dy[i];
 
-							if (nx < 0 || nx >= N || ny < 0 || ny >= M)
+							if (nx < 0 || nx >= N || ny < 0 || ny >= N)
 								continue;
-							if (Visit[nx][ny] == 1 || Board[nx][ny] != 1)
+							if (Board[nx][ny] != Key || GeneralVisit[nx][ny] != 0)
 								continue;
+							GeneralVisit[nx][ny] = 1;
 							Queue.push({ nx,ny });
-							Visit[nx][ny] = 1;
+						}
+					}
+				}
+
+				// 적록색약용
+				if (SpecialBoard[i][j] == Key && SpecialVisit[i][j] == 0)
+				{
+					SpecialResult++;
+					queue<pair<int, int>> Queue;
+					SpecialVisit[i][j] = 1;
+					Queue.push({ i,j });
+					while (!Queue.empty())
+					{
+						auto Pair = Queue.front();
+						Queue.pop();
+
+						for (int i = 0; i < 4; ++i)
+						{
+							int nx = Pair.first + dx[i];
+							int ny = Pair.second + dy[i];
+
+							if (nx < 0 || nx >= N || ny < 0 || ny >= N)
+								continue;
+							if (SpecialBoard[nx][ny] != Key || SpecialVisit[nx][ny] != 0)
+								continue;
+							SpecialVisit[nx][ny] = 1;
+							Queue.push({ nx,ny });
 						}
 					}
 				}
 			}
 		}
-		cout << Result << "\n";
 	}
+
+	cout << GeneralResult << " " << SpecialResult;
 
 	return 0;
 }
