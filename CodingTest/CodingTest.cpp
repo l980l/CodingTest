@@ -1,7 +1,6 @@
 ﻿#include <iostream>
 #include <vector>
 #include <queue>
-#include <tuple>
 
 using namespace std;
 
@@ -9,101 +8,59 @@ int main()
 {
 	ios::sync_with_stdio(0);
 	cin.tie(0);
-
+	
 	int T;
 	cin >> T;
-
+	// 이거 사이클 찾는 문제랑 비슷한거 같은데 어케 하더라 흠...
 	while (T--)
 	{
-		int w, h;
-		cin >> w >> h;
-		vector<vector<int>> Board(h, vector<int>(w));
-		vector<vector<int>> Distance(h, vector<int>(w));
-		queue<tuple<int, int, int>> Queue;	// r, c, fire 여부
-		int dx[4] = { 0,0,-1,1 };
-		int dy[4] = { 1,-1,0,0 };
-		int Alive = 1e9;
-
-		// 음.. 불을 먼저 큐에 다 넣고, 상근이 위치를 그 다음에 넣으면 BFS할 때 상근이가 그냥 미리 기록된 Distance 값이 있는지만 판단해서 가면 될거 같은데? 
-		int SR = 0;
-		int SC = 0;
-		for (int i = 0; i < h; ++i)
+		int n;
+		cin >> n;
+		// 학생 번호와 그 학생이 원하는 다른 학생의 번호. 그룹이 지어진 경우 second를 0으로.
+		vector<pair<int, int>> Student;		
+		Student.push_back({ 0,0 });
+		for (int i = 1; i <= n; ++i)
 		{
-			string S;
-			cin >> S;
-			for (int j = 0; j < w; ++j)
-			{
-				Distance[i][j] = -1;
-				Board[i][j] = S[j];
-
-				// 상근이 초기 위치는 따로 저장해두기.
-				if (S[j] == '@')
-				{
-					SR = i;
-					SC = j;
-				}
-				// 불의 초기 위치
-				if (S[j] == '*')
-				{
-					Distance[i][j] = 0;
-					Queue.push({ i,j,1 });
-				}
-			}
+			int a;
+			cin >> a;
+			// 1인팀인 경우 이미 그룹이 지어졌으니 second를 0으로 넣기.
+			if (i == a)
+				Student.push_back({ i,0 });
+			else
+				Student.push_back({ i,a });
 		}
-		// 이번턴의 불의 전파 위치를 먼저 구하고, 상근이를 이동시키기 위해서 이렇게 함.
-		Distance[SR][SC] = 0;
-		Queue.push({ SR,SC,0 });
-
-		while (!Queue.empty())
+		int Result = 0;
+		for (int i = 1; i <= n; ++i)
 		{
-			int r, c, fire;
-			tie(r, c, fire) = Queue.front();
-			Queue.pop();
-
-			// 불의 이동
-			if (fire)
+			queue<int> Group;	// 그룹중인 학생 
+			Group.push(i);
+			auto CurPair = Student[i];
+			while (CurPair.second != 0)
 			{
-				for (int i = 0; i < 4; ++i)
+				Result++;	// 일단 팀 못 만든다고 생각해.
+				int NextIdx = CurPair.second;
+				// 다음에 갈 노드가 방문한 노드라면 queue를 비워가면서 그룹이 몇명인지 확인.
+				if (Student[NextIdx].second == 0)
 				{
-					int nx = r + dx[i];
-					int ny = c + dy[i];
-
-					if (nx < 0 || nx >= h || ny < 0 || ny >= w)
-						continue;
-					if (Distance[nx][ny] != -1 || Board[nx][ny]=='#')
-						continue;
-					Distance[nx][ny] = Distance[r][c] + 1;
-					Queue.push({ nx,ny,1 });
-				}
-			}
-
-			// 상근이의 이동
-			else if (!fire)
-			{
-				for (int i = 0; i < 4; ++i)
-				{
-					int nx = r + dx[i];
-					int ny = c + dy[i];
-					// 탈출
-					if (nx < 0 || nx >= h || ny < 0 || ny >= w)
+					while (!Group.empty())
 					{
-						// 탈출 시간이 기록되지 않은 경우에만 기록.
-						if (Alive == 1e9)
-							Alive = Distance[r][c] + 1;
-						continue;
+						// 그룹이 될 때가 언제인지 찾고 남은 그룹 크기만큼 Result에서 뺴줌. 
+						if (NextIdx == Group.front())
+						{
+							Result -= Group.size();
+							break;
+						}
+						Group.pop();
 					}
-					if (Distance[nx][ny] != -1 || Board[nx][ny] == '#')
-						continue;
-					Distance[nx][ny] = Distance[r][c] + 1;
-					Queue.push({ nx,ny,0 });
 				}
+				else
+					Group.push(NextIdx);
+
+				Student[CurPair.first].second = 0;	// 방문 처리.
+				CurPair = Student[NextIdx];	// 다음 Pair로 바꾸기.
 			}
 		}
-
-		if (Alive == 1e9)
-			cout << "IMPOSSIBLE" << "\n";
-		else
-			cout << Alive << "\n";
+		cout << Result << "\n";
 	}
 
 	return 0;
