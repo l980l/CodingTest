@@ -9,59 +9,97 @@ int main()
 	ios::sync_with_stdio(0);
 	cin.tie(0);
 	
-	int T;
-	cin >> T;
-	// 이거 사이클 찾는 문제랑 비슷한거 같은데 어케 하더라 흠...
-	while (T--)
+	int N, M;
+	cin >> N >> M;
+
+	vector<vector<int>> Board(N, vector<int>(M));
+	int dx[4] = { 1,-1,0,0 };
+	int dy[4] = { 0,0,-1,1 };
+
+	for (int i = 0; i < N; ++i)
 	{
-		int n;
-		cin >> n;
-		// 학생 번호와 그 학생이 원하는 다른 학생의 번호. 그룹이 지어진 경우 second를 0으로.
-		vector<pair<int, int>> Student;		
-		Student.push_back({ 0,0 });
-		for (int i = 1; i <= n; ++i)
+		for (int j = 0; j < M; ++j)
 		{
 			int a;
 			cin >> a;
-			// 1인팀인 경우 이미 그룹이 지어졌으니 second를 0으로 넣기.
-			if (i == a)
-				Student.push_back({ i,0 });
-			else
-				Student.push_back({ i,a });
+			Board[i][j] = a;
 		}
-		int Result = 0;
-		for (int i = 1; i <= n; ++i)
+	}
+
+	// 얼음 덩어리 개수. 초기에는 1개로 주어진다. 
+	int Mass = 1;
+	int Year = 0;
+	// 덩어리가 0이 되면 0출력 2 이상이 되면 그때의 시간 출력.
+	while (Mass == 1)
+	{
+		Mass = 0; 
+		Year++;
+		// 매년 새롭게 NearIce 배열 만들기.
+		vector<vector<int>> NearIce(N, vector<int>(M));
+
+		for (int i = 0; i < N; ++i)
 		{
-			queue<int> Group;	// 그룹중인 학생 
-			Group.push(i);
-			auto CurPair = Student[i];
-			while (CurPair.second != 0)
+			for (int j = 0; j < M; ++j)
 			{
-				Result++;	// 일단 팀 못 만든다고 생각해.
-				int NextIdx = CurPair.second;
-				// 다음에 갈 노드가 방문한 노드라면 queue를 비워가면서 그룹이 몇명인지 확인.
-				if (Student[NextIdx].second == 0)
+				// 0이 아닌 곳이 비방문 상태라면
+				if (Board[i][j] != 0 && !NearIce[i][j])
 				{
-					while (!Group.empty())
+					// 덩어리 ++
+					Mass++;
+					queue<pair<int, int>> Queue;
+					Queue.push({ i,j });
+					NearIce[i][j] = true;
+					while (!Queue.empty())
 					{
-						// 그룹이 될 때가 언제인지 찾고 남은 그룹 크기만큼 Result에서 뺴줌. 
-						if (NextIdx == Group.front())
+						auto Pair = Queue.front();
+						Queue.pop();
+
+						for (int i = 0; i < 4; ++i)
 						{
-							Result -= Group.size();
-							break;
+							int nx = Pair.first + dx[i];
+							int ny = Pair.second + dy[i];
+
+							if (nx < 0 || nx >= N || ny < 0 || ny >= M)
+								continue;
+							// 바다인 경우 -1
+							if (Board[nx][ny] == 0)
+							{
+								// Board[Pair.first][Pair.second] -= 1; 이렇게하면 Board가 실시간으로 변경돼서 원하지 않는 결과가 나올듯.
+								NearIce[Pair.first][Pair.second]++;	// NearIce에 ++을 해서 처리해주자.
+							}
+							// 얼음인데 방문한적 없는 경우
+							else if(NearIce[nx][ny] == 0)
+							{
+								Queue.push({ nx,ny });
+								NearIce[nx][ny] = 1;
+							}
 						}
-						Group.pop();
 					}
 				}
-				else
-					Group.push(NextIdx);
-
-				Student[CurPair.first].second = 0;	// 방문 처리.
-				CurPair = Student[NextIdx];	// 다음 Pair로 바꾸기.
 			}
 		}
-		cout << Result << "\n";
+
+		for (int i = 0; i < N; ++i)
+		{
+			for (int j = 0; j < M; ++j)
+			{
+				// 얼음인 경우
+				if (Board[i][j] != 0)
+				{
+					// 방문할 때 NearIce를 1을 넣어주기 때문에 1을 덜 빼야 된다. 
+					Board[i][j] = Board[i][j] - NearIce[i][j] + 1;
+					// 0 이하로는 못가게 하기.
+					if (Board[i][j] < 0)
+						Board[i][j] = 0;
+				}
+			}
+		}
 	}
+
+	if (Mass == 0)
+		cout << 0;
+	else
+		cout << Year - 1;
 
 	return 0;
 }
