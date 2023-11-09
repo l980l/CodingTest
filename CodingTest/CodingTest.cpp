@@ -9,9 +9,9 @@ int main()
 {
 	ios::sync_with_stdio(0);
 	cin.tie(0);
-
-	int N;
-	cin >> N;
+	
+	int N, M;
+	cin >> N >> M;
 
 	int dx[4] = { 0,0,-1,1 };
 	int dy[4] = { 1,-1,0,0 };
