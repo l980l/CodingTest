@@ -1,60 +1,69 @@
 ﻿#include <iostream>
-
+#include <vector>
 using namespace std;
 
-void func(int n, int now)
+int Result1;
+int Result2;
+int Result3;
+vector<vector<int>> Board;
+
+void func(int n, int sr, int sc)
 {
-	for (int i = 0; i < now; ++i)
-	{
-		cout << "____";
-	}
-	cout << '"' << "재귀함수가 뭔가요?" << '"' << '\n';
-	
-	if (now == n)
-	{
-		for (int i = 0; i < now; ++i)
-		{
-			cout << "____";
-		}
-		cout << '"' << "재귀함수는 자기 자신을 호출하는 함수라네" << '"' << '\n';
-	}
-
-	else
-	{
-		for (int i = 0; i < now; ++i)
-		{
-			cout << "____";
-		}
-		cout << '"' << "잘 들어보게. 옛날옛날 한 산 꼭대기에 이세상 모든 지식을 통달한 선인이 있었어.\n";
-		for (int i = 0; i < now; ++i)
-		{
-			cout << "____";
-		}
-		cout << "마을 사람들은 모두 그 선인에게 수많은 질문을 했고, 모두 지혜롭게 대답해 주었지.\n";
-		for (int i = 0; i < now; ++i)
-		{
-			cout << "____";
-		}
-		cout << "그의 답은 대부분 옳았다고 하네. 그런데 어느 날, 그 선인에게 한 선비가 찾아와서 물었어." << '"' << '\n';
-		func(n, now + 1);
-	}
-
-	for (int i = 0; i < now; ++i)
-	{
-		cout << "____";
-	}
-	cout << "라고 답변하였지.\n";
+    int temp = Board[sr][sc];
+    bool OnePiece = true;
+    for (int i = sr; i < sr + n; ++i)
+    {
+        for (int j = sc; j < sc + n; ++j)
+        {
+            if (temp != Board[i][j])
+                OnePiece = false;
+        }
+    }
+    if (OnePiece)
+    {
+        if (temp == -1)
+            Result1++;
+        if (temp == 0)
+            Result2++;
+        if (temp == 1)
+            Result3++;
+    }
+    else
+    {
+        func(n / 3, sr, sc);
+        func(n / 3, sr, sc + n / 3);
+        func(n / 3, sr, sc + n * 2 / 3);
+        func(n / 3, sr + n / 3, sc);
+        func(n / 3, sr + n / 3, sc + n / 3);
+        func(n / 3, sr + n / 3, sc + n * 2 / 3);
+        func(n / 3, sr + n * 2 / 3, sc);
+        func(n / 3, sr + n * 2 / 3, sc + n / 3);
+        func(n / 3, sr + n * 2 / 3, sc + n * 2 / 3);
+    }
 }
 
 int main()
 {
-	ios::sync_with_stdio(0);
-	cin.tie(0);
-	
-	int n;
-	cin >> n;
-	cout << "어느 한 컴퓨터공학과 학생이 유명한 교수님을 찾아가 물었다.\n";
-	func(n, 0);
+    ios::sync_with_stdio(false);
+    cin.tie(0);
 
-	return 0;
+    int N;
+    cin >> N;
+    Board = vector<vector<int>>(N, vector<int>(N));
+    for (int i = 0; i < N; ++i)
+    {
+        for (int j = 0; j < N; ++j)
+        {
+            cin >> Board[i][j];
+        }
+    }
+    Result1 = 0;
+    Result2 = 0;
+    Result3 = 0;
+    func(N, 0, 0);
+    cout << Result1 << '\n';
+    cout << Result2 << '\n';
+    cout << Result3 << '\n';
+
+    return 0;
 }
