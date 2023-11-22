@@ -1,70 +1,46 @@
 ﻿#include <iostream>
-#include <vector>
-#include <tuple>
 
 using namespace std;
-vector<vector<int>> Board;
 
-int N, K;
-int Dist[100003];
-queue<int> Queue;
+int N, S;
+int arr[20];
+int result = 0;
 
-void teleport(int S)
-{
-	if (S == 0)
-		return;
-	int temp = S;
-
-	temp <<= 1;
-	while (temp - 1 <= K)
-	{
-		if (Dist[temp] == -1)
-		{
-			Dist[temp] = Dist[S];
-			Queue.push(temp);
-			if (temp == K)
-				return;
-		}
-		temp <<= 1;
-	}
-}
+void func(int curIdx, int sum);
 
 int main()
 {
 	ios::sync_with_stdio(0);
 	cin.tie(0);
 
-	cin >> N >> K;
+	cin >> N >> S;
 
-	fill(Dist, Dist + 100003, -1);
-	Dist[N] = 0;
-	Queue.push(N);
-	teleport(N);
-	while (!Queue.empty())
+	for (int i = 0; i < N; ++i)
 	{
-		int Cur = Queue.front();
-		Queue.pop();
-
-		if (Cur == K)
-		{
-			cout << Dist[Cur];
-			return 0;
-		}
-
-		if (Cur - 1 >= 0 && Dist[Cur - 1] == -1)
-		{
-			Dist[Cur - 1] = Dist[Cur] + 1;
-			Queue.push(Cur - 1);
-			teleport(Cur - 1);
-		}
-
-		if (Cur + 1 <= 100001 && Dist[Cur + 1] == -1)
-		{
-			Dist[Cur + 1] = Dist[Cur] + 1;
-			Queue.push(Cur + 1);
-			teleport(Cur + 1);
-		}
+		cin >> arr[i];
 	}
+	
+	func(0, 0);
+	
+	// S가 0인 경우에는 부분 수열이 공집합인 경우를 제외해야 하기 때문에 -1을 해준다. 
+	if (S == 0)
+		result--;
+
+	cout << result;
 
 	return 0;
+}
+
+void func(int curIdx, int sum)
+{
+	if (curIdx == N)
+	{
+		if (sum == S)
+			result++;
+		return;
+	}
+	// 현재 값을 더하지 않는 경우
+	func(curIdx + 1, sum);
+	// 현재 값을 더한 경우
+	func(curIdx + 1, sum + arr[curIdx]);
 }
