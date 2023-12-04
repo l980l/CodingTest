@@ -2,15 +2,15 @@
 
 using namespace std;
 
-int N, M;
-int arr[9];
-bool isused[9];
+int n, m;
+int arr[10];
 
-void func(int count, int least)
+void func(int k)
 {
-	if (count == M)
+	// 꽉 찬것
+	if (k == m)
 	{
-		for (int i = 0; i < M; ++i)
+		for (int i = 0; i < m; ++i)
 		{
 			cout << arr[i] << " ";
 		}
@@ -18,15 +18,15 @@ void func(int count, int least)
 		return;
 	}
 
-	for (int i = least; i <= N; ++i)
+	int StartInt = 1;
+	if (k != 0)
+		StartInt = arr[k - 1];
+
+	for (int i = StartInt; i <= n; ++i)
 	{
-		if (!isused[i])
-		{
-			arr[count] = i;
-			isused[i] = true;
-			func(count + 1, i);
-			isused[i] = false;
-		}
+		arr[k] = i;
+		func(k+1);
+		arr[k] = 0;
 	}
 }
 
@@ -34,9 +34,9 @@ int main()
 {
 	ios::sync_with_stdio(0);
 	cin.tie(0);
-	
-	cin >> N >> M;
-	func(0, 1);
+
+	cin >> n >> m;
+	func(0);
 
 	return 0;
 }
