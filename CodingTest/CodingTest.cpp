@@ -1,32 +1,36 @@
 ﻿#include <iostream>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
-int n, m;
+int N, M;
 int arr[10];
+vector<int> Num;
+bool isused[10];
 
 void func(int k)
 {
-	// 꽉 찬것
-	if (k == m)
+	if (k == M)
 	{
-		for (int i = 0; i < m; ++i)
+		for (int i = 0; i < M; ++i)
 		{
-			cout << arr[i] << " ";
+			cout << arr[i] << ' ';
 		}
 		cout << "\n";
 		return;
 	}
 
-	int StartInt = 1;
-	if (k != 0)
-		StartInt = arr[k - 1];
-
-	for (int i = StartInt; i <= n; ++i)
+	for (int i = 0; i < N; ++i)
 	{
-		arr[k] = i;
-		func(k+1);
-		arr[k] = 0;
+		// 사용한적 없는 수인 경우
+		if (!isused[i])
+		{
+			isused[i] = true;
+			arr[k] = Num[i];
+			func(k + 1);
+			isused[i] = false;
+		}
 	}
 }
 
@@ -35,7 +39,15 @@ int main()
 	ios::sync_with_stdio(0);
 	cin.tie(0);
 
-	cin >> n >> m;
+	cin >> N >> M;
+	for (int i = 0; i < N; ++i)
+	{
+		int temp;
+		cin >> temp;
+		Num.push_back(temp);
+	}
+	sort(Num.begin(), Num.end());
+
 	func(0);
 
 	return 0;
