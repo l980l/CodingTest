@@ -1,34 +1,32 @@
 ﻿#include <iostream>
-#include <vector>
 #include <algorithm>
 
 using namespace std;
 
 int N, M;
 int arr[10];
-vector<int> Num;
+int Num[10];
 bool isused[10];
 
-void func(int k)
+void func(int k, int StartIdx)
 {
 	if (k == M)
 	{
 		for (int i = 0; i < M; ++i)
 		{
-			cout << arr[i] << ' ';
+			cout << arr[i] << " ";
 		}
 		cout << "\n";
 		return;
 	}
 
-	for (int i = 0; i < N; ++i)
+	for (int i = StartIdx; i < N; ++i)
 	{
-		// 사용한적 없는 수인 경우
 		if (!isused[i])
 		{
 			isused[i] = true;
 			arr[k] = Num[i];
-			func(k + 1);
+			func(k + 1, i + 1);
 			isused[i] = false;
 		}
 	}
@@ -42,13 +40,10 @@ int main()
 	cin >> N >> M;
 	for (int i = 0; i < N; ++i)
 	{
-		int temp;
-		cin >> temp;
-		Num.push_back(temp);
+		cin >> Num[i];
 	}
-	sort(Num.begin(), Num.end());
-
-	func(0);
+	sort(Num, Num + N);
+	func(0, 0);
 
 	return 0;
 }
