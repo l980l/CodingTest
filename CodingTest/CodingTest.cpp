@@ -7,7 +7,7 @@ int N, M;
 int arr[10];
 int Num[10];
 
-void func(int k)
+void func(int k, int StartIdx)
 {
 	if (k == M)
 	{
@@ -19,10 +19,10 @@ void func(int k)
 		return;
 	}
 
-	for (int i = 0; i < N; ++i)
+	for (int i = StartIdx; i < N; ++i)
 	{
 		arr[k] = Num[i];
-		func(k + 1);
+		func(k + 1, i);
 	}
 }
 
@@ -37,7 +37,7 @@ int main()
 		cin >> Num[i];
 	}
 	sort(Num, Num + N);
-	func(0);
+	func(0, 0);
 
 	return 0;
 }
