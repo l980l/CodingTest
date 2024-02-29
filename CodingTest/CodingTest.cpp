@@ -4,12 +4,10 @@
 using namespace std;
 
 int N, M;
-int Num[8];
-int Arr[8];
-bool isused[8];
+int Num[7];
+int Arr[7];
 
-// LastIdx: 수열 끝 원소의 Num 인덱스
-void func(int k, int LastIdx)
+void func(int k)
 {
     if (k == M)
     {
@@ -20,18 +18,13 @@ void func(int k, int LastIdx)
         cout << "\n";
         return;
     }
-    
-    int temp = 0;
-    for (int i = LastIdx; i < N; ++i)
+
+    for (int i = 0; i < N; ++i)
     {
-        if (!isused[i] && temp != Num[i])
-        {
-            temp = Num[i];
-            isused[i] = true;
-            Arr[k] = Num[i];
-            func(k + 1, i);
-            isused[i] = false;
-        }
+        if (i > 0 && Num[i] == Num[i - 1])
+            continue;
+        Arr[k] = Num[i];
+        func(k + 1);
     }
 }
 
@@ -46,7 +39,7 @@ int main()
         cin >> Num[i];
     }
     sort(Num, Num + N);
-    func(0, 0);
+    func(0);
 
 	return 0;
 }
