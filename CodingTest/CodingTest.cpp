@@ -3,15 +3,15 @@
 
 using namespace std;
 
-int N, M;
-int Num[7];
-int Arr[7];
+int K;
+int Num[13];
+int Arr[13];
 
-void func(int k)
+void func(int k, int st)
 {
-    if (k == M)
+    if (k == 6)
     {
-        for (int i = 0; i < M; ++i)
+        for (int i = 0; i < 6; ++i)
         {
             cout << Arr[i] << " ";
         }
@@ -19,12 +19,10 @@ void func(int k)
         return;
     }
 
-    for (int i = 0; i < N; ++i)
+    for (int i = st; i < K; ++i)
     {
-        if (i > 0 && Num[i] == Num[i - 1])
-            continue;
         Arr[k] = Num[i];
-        func(k + 1);
+        func(k + 1, i + 1);
     }
 }
 
@@ -33,13 +31,21 @@ int main()
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    cin >> N >> M;
-    for (int i = 0; i < N; ++i)
+    while (true)
     {
-        cin >> Num[i];
+        cin >> K;
+
+        if (K == 0)
+            return 0;
+
+        for (int i = 0; i < K; ++i)
+        {
+            cin >> Num[i];
+        }
+
+        func(0, 0);
+        cout << "\n";
     }
-    sort(Num, Num + N);
-    func(0);
 
 	return 0;
 }
