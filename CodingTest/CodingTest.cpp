@@ -46,5 +46,5 @@ int main()
     sort(Num, Num + N);
     func(0);
 
-    return 0;
+	return 0;
 }
