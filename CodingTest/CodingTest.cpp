@@ -8,27 +8,28 @@ int Num[8];
 int Arr[8];
 bool isused[8];
 
-void func(int k)
+// LastIdx: 수열 끝 원소의 Num 인덱스
+void func(int k, int LastIdx)
 {
     if (k == M)
     {
-        for (int i = 0;i<M;++i)
+        for (int i = 0; i < M; ++i)
         {
             cout << Arr[i] << " ";
         }
         cout << "\n";
         return;
     }
-
-    int Temp = 0;   // 이전에 Arr에 추가한 수를 임시 저장하고, 이것과 같은 값을 추가하게 된다면 중복 수열이다. 
-    for (int i = 0; i < N; ++i)
+    
+    int temp = 0;
+    for (int i = LastIdx; i < N; ++i)
     {
-        if (!isused[i] && Temp != Num[i])
+        if (!isused[i] && temp != Num[i])
         {
-            Temp = Num[i];
-            Arr[k] = Num[i];
+            temp = Num[i];
             isused[i] = true;
-            func(k + 1);
+            Arr[k] = Num[i];
+            func(k + 1, i);
             isused[i] = false;
         }
     }
@@ -38,13 +39,14 @@ int main()
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
+
     cin >> N >> M;
     for (int i = 0; i < N; ++i)
     {
         cin >> Num[i];
     }
     sort(Num, Num + N);
-    func(0);
+    func(0, 0);
 
 	return 0;
 }
