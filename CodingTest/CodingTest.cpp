@@ -1,54 +1,50 @@
 ﻿#include <iostream>
-#include <vector>
-using namespace std;
-vector<vector<int>> Board;
+#include <algorithm>
 
-void func(int n, int sr, int sc)
+using namespace std;
+
+int N, M;
+int Num[8];
+int Arr[8];
+bool isused[8];
+
+void func(int k)
 {
-    bool OneColor = true;
-    int temp = Board[sr][sc];
-    for (int i = sr; i < sr + n; ++i)
+    if (k == M)
     {
-        for (int j = sc; j < sc + n; ++j)
+        for (int i = 0;i<M;++i)
         {
-            if (temp != Board[i][j])
-                OneColor = false;
+            cout << Arr[i] << " ";
         }
+        cout << "\n";
+        return;
     }
-    if (OneColor)
+
+    int Temp = 0;   // 이전에 Arr에 추가한 수를 임시 저장하고, 이것과 같은 값을 추가하게 된다면 중복 수열이다. 
+    for (int i = 0; i < N; ++i)
     {
-        cout << temp-'0';
-    }
-    else
-    {
-        cout << "(";
-        func(n / 2, sr, sc);
-        func(n / 2, sr, sc+n/2);
-        func(n / 2, sr+n/2, sc);
-        func(n / 2, sr+n/2, sc+n/2);
-        cout << ")";
+        if (!isused[i] && Temp != Num[i])
+        {
+            Temp = Num[i];
+            Arr[k] = Num[i];
+            isused[i] = true;
+            func(k + 1);
+            isused[i] = false;
+        }
     }
 }
 
 int main()
 {
-    ios::sync_with_stdio(false);
+    ios::sync_with_stdio(0);
     cin.tie(0);
-
-    int N;
-    cin >> N;
-    Board = vector<vector<int>>(N, vector<int>(N));
+    cin >> N >> M;
     for (int i = 0; i < N; ++i)
     {
-        string S;
-        cin >> S;
-        for (int j = 0; j < N; ++j)
-        {
-            Board[i][j] = S[j];
-        }
+        cin >> Num[i];
     }
-
-    func(N, 0, 0);
+    sort(Num, Num + N);
+    func(0);
 
     return 0;
 }
