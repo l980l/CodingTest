@@ -1,125 +1,121 @@
-﻿#include <iostream>
-#include <vector>
-#include <queue>
-#include <algorithm>
+﻿#include <iostream>	
+#include <vector>	
 
 using namespace std;
+
+int N, M;
+int Min;
+vector<vector<int>> originboard;
+vector<vector<int>> copyboard;
+vector<pair<int,int>> cctv;
+int dx[4] = { 1,0,-1,0 };
+int dy[4] = { 0,1,0,-1 };
+
+void look(int x, int y, int dir)
+{
+	dir %= 4;
+
+	while (true)
+	{
+		x += dx[dir];
+		y += dy[dir];
+
+		if (x < 0 || x >= N || y < 0 || y >= M)
+			break;
+		if (copyboard[x][y] == 6)
+			break;
+		if (copyboard[x][y] == 0)
+			copyboard[x][y] = '#';
+	}
+}
 
 int main()
 {
 	ios::sync_with_stdio(0);
 	cin.tie(0);
 
-	int N, M;
-	int G, R;
-	int max = 0;
-	int dx[4] = { 1, -1, 0, 0 };
-	int dy[4] = { 0, 0, 1, -1 };
-	cin >> N >> M >> G >> R;
+	cin >> N >> M;
 
-	// 0 호수, 1 배양액 뿌릴 수 없는 땅, 2 배양액 뿌릴 수 있는 땅
-	vector<vector<int>> board = vector<vector<int>>(N, vector<int>(M));
-	// 배양액을 뿌릴 수 있는 땅 주소.
-	vector<pair<int, int>> InitRGBoard;
-	// BFS를 위한 큐
-	queue<pair<int, int>> q;
+	originboard = vector<vector<int>>(N, vector<int>(M));
 
 	for (int i = 0; i < N; ++i)
 	{
 		for (int j = 0; j < M; ++j)
 		{
-			cin >> board[i][j];
-			if (board[i][j] == 2)
-			{
-				InitRGBoard.push_back(make_pair(i,j));
-			}
+			cin >> originboard[i][j];
+			// cctv인 경우
+			if (originboard[i][j] != 6 && originboard[i][j] != 0)
+				cctv.push_back(make_pair(i, j));
+			// 사각지대
+			if (originboard[i][j] == 0)
+				Min++;
 		}
 	}
 
-	vector<int> InitRGIdx(InitRGBoard.size(), 2);	// 초기 배양액 위치를 만들기 위한 배열. 0은 초기 G, 1은 초기 R, 2는 Default
-	fill(InitRGIdx.begin(), InitRGIdx.begin() + G, 0);	// 초기 G 주소
-	fill(InitRGIdx.begin() + G, InitRGIdx.begin() + G + R, 1);	// 초기 R 주소
-
-	do
+	// cctv 개수. cctv 각각의 방향을 0~4까지의 숫자로 나타내어 모든 경우의 수를 체크할 것이다. 
+	int cctvcount = cctv.size();
+	int maxdir = 1;
+	for (int i = 0; i < cctvcount; ++i)
 	{
-		vector<vector<int>> copyboard = board;		// 0 호수, 1 배양액 뿌릴 수 없는 땅, 2 배양액 뿌릴 수 있는 땅, 3 G, 4 R, 5 Flower
-		vector<vector<int>> distance(N, vector<int>(M, -1));	// 초기 배양액으로부터의 거리
-		int cnt = 0;	// 이번에 피운 꽃의 수
+		maxdir *= 4;
+	}
 
-		for (int i = 0; i < InitRGIdx.size(); ++i)
+	// 만들 수 있는 경우의 수가 maxdir임. pow는 안쓰는게 안전하고, 비트쉬프트 연산자를 사용해서 1 << 2 * cctvcount를 maxdir로 사용해도 됨.
+	for (int i = 0; i <= maxdir; ++i)
+	{
+		// 카피보드 초기화
+		copyboard = originboard;
+		int temp = i;
+		// 각 cctv의 방향을 정하기 위해 1자리씩 잘라서 사용
+		for (int j = 0; j < cctvcount; ++j)
 		{
-			// 초기 G
-			if (InitRGIdx[i] == 0)
+			// 4진수로 temp를 사용하기 위해 4로 나눈 나머지를 사용한다. 
+			int dir = temp % 4;
+			if (originboard[cctv[j].first][cctv[j].second] == 1)
 			{
-				auto pair = InitRGBoard[i];
-				copyboard[pair.first][pair.second] = 3;
-				distance[pair.first][pair.second] = 0;
-				q.push(make_pair(pair.first, pair.second));
+				look(cctv[j].first, cctv[j].second, dir);
 			}
-			// 초기 R
-			if (InitRGIdx[i] == 1)
+			else if (originboard[cctv[j].first][cctv[j].second] == 2)
 			{
-				auto pair = InitRGBoard[i];
-				copyboard[pair.first][pair.second] = 4;
-				distance[pair.first][pair.second] = 0;
-				q.push(make_pair(pair.first, pair.second));
+				look(cctv[j].first, cctv[j].second, dir);
+				look(cctv[j].first, cctv[j].second, dir +2);
 			}
-		}
-		// BFS 
-		while (!q.empty())
-		{
-			auto pair = q.front();
-			q.pop();
+			else if (originboard[cctv[j].first][cctv[j].second] == 3)
+			{
+				look(cctv[j].first, cctv[j].second, dir);
+				look(cctv[j].first, cctv[j].second, dir + 1);
+			}
+			else if (originboard[cctv[j].first][cctv[j].second] == 4)
+			{
+				look(cctv[j].first, cctv[j].second, dir);
+				look(cctv[j].first, cctv[j].second, dir + 1);
+				look(cctv[j].first, cctv[j].second, dir + 2);
+			}
+			else if (originboard[cctv[j].first][cctv[j].second] == 5)
+			{
+				look(cctv[j].first, cctv[j].second, dir);
+				look(cctv[j].first, cctv[j].second, dir + 1);
+				look(cctv[j].first, cctv[j].second, dir + 2);
+				look(cctv[j].first, cctv[j].second, dir + 3);
+			}
 
-			// 꽃이 핀 경우 그만.
-			if (copyboard[pair.first][pair.second] == 5)
-				continue;
-
-			for (int k = 0; k < 4; ++k)
-			{
-				int nx = pair.first + dx[k];
-				int ny = pair.second + dy[k];
-				
-				if (nx < 0 || nx >= N || ny < 0 || ny >= M)
-					continue;
-				// 호수거나 꽃이거나
-				if (copyboard[nx][ny] == 0 || copyboard[nx][ny] == 5)
-					continue;
-				// 초록땅인 경우
-				if (copyboard[nx][ny] == 3)
-				{
-					// 이번에 넣을 배양액이 R이어야 함. 또한 이미 설정된 거리와 R에서의 거리가 같아야 함.
-					if (copyboard[pair.first][pair.second] == 4 && distance[nx][ny] == distance[pair.first][pair.second] + 1)
-					{
-						copyboard[nx][ny] = 5;
-						cnt++;
-					}
-				}
-				// 빨간땅인 경우
-				else if (copyboard[nx][ny] == 4)
-				{
-					// 이번에 넣을 배양액이 G이어야 함. 또한 이미 설정된 거리와 R에서의 거리가 같아야 함.
-					if (copyboard[pair.first][pair.second] == 3 && distance[nx][ny] == distance[pair.first][pair.second] + 1)
-					{
-						copyboard[nx][ny] = 5;
-						cnt++;
-					}
-				}
-				// 아직 배양되지 않은 땅.
-				else
-				{
-					copyboard[nx][ny] = copyboard[pair.first][pair.second];
-					distance[nx][ny] = distance[pair.first][pair.second] + 1;
-					q.push(make_pair(nx, ny));
-				}
-			}
+			temp /= 4;
 		}
 
-		if (max < cnt)
-			max = cnt;
-	} while (next_permutation(InitRGIdx.begin(), InitRGIdx.end())); // 배열은 끝 주소를 2번인자로 넣는데, end()는 끝 주소 다음 주소를 반환하니까 -1 해야하지 않을까? 싶었지만 아니네~ 생각해보니 배열을 넣을 때도, 배열 끝주소 + 1을 넣는구나 ㅎㅎ "시작 주소 + 배열 길이" 이런 식으로 넣으니까.
+		int tempmin = 0;
+		for (int i = 0; i < N; ++i)
+		{
+			for (int j = 0; j < M; ++j)
+			{
+				if (copyboard[i][j] == 0)
+					tempmin++;
+			}
+		}
+		// Min과 tempmin 중 작은 값으로 Min 설정.
+		Min = min(Min, tempmin);
+	}
 
-	cout << max;
+	cout << Min;
 
 	return 0;
 }
