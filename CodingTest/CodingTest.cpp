@@ -1,157 +1,97 @@
 ﻿#include <iostream>
 #include <vector>
+#include <queue>
 
 using namespace std;
 
-int N;
-int Max;
-vector<vector<int>> board;
-vector<vector<int>> copyboard;
+vector<string> board;
+vector<vector<bool>> visit;
+vector<pair<int, int>> adjPY;
+queue<pair<int, int>> Q;
+int dx[4] = { 0,0,1,-1 };
+int dy[4] = { 1,-1,0,0, };
+int adj = 0;
+bool NowChain;
+int TotalChain = 0;
 
-// 상 우 하 좌
-void Move(int dir)
+// 밑으로 떨어뜨리기.
+void Gravity()
 {
-	// 상
-	if (dir == 0)
+	for (int i = 0; i < 6; ++i)
 	{
-		for (int i = 0; i < N; ++i)
+		string temp;
+		for (int j = 0; j < 12; ++j)
 		{
-			// 우선 임시 벡터에 0이 아닌 수만 집어넣음. 이때 이동 방향에 따라 넣는 순서가 달라짐.
-			vector<int> temp;
-			for (int j = 0; j < N; ++j)
+			if (board[12 - 1 - j][i] == '.')
+				continue;
+			temp.push_back(board[12 - 1 - j][i]);
+			// 일단은 '.'으로 채워두기. 지금보니 temp를 '.' 12개로 채워뒀어도 되겠네.
+			board[12 - 1 - j][i] = '.';
+		}
+		// 뿌요 넣기
+		int size = (int)temp.size();
+		for (int j = 0; j < size; ++j)
+		{
+			if (temp[j] == '.')
+				continue;
+			board[12 - 1 - j][i] = temp[j];
+		}
+	}
+}
+
+// 같은 색의 뿌요가 인접해 있는 경우 adjPY 백터에 주소를 저장해두는 함수.
+void BFS()
+{
+	while (!Q.empty())
+	{
+		auto pair = Q.front();
+		Q.pop();
+
+		for (int i = 0; i < 4; ++i)
+		{
+			int nx = pair.first + dx[i];
+			int ny = pair.second + dy[i];
+
+			if (nx < 0 || nx >= 12 || ny < 0 || ny >= 6 || visit[nx][ny])
+				continue;
+			if (board[pair.first][pair.second] == board[nx][ny])
 			{
-				if (copyboard[j][i] != 0)
-					temp.push_back(copyboard[j][i]);
-			}
-			// 임시 벡터 temp를 반복 돌면서, 같은 수가 연속으로 나오면 뒷 수를 지우고, 앞 수를 2배로 만듦.
-			auto iter = temp.begin();
-			for (; iter != temp.end(); )
-			{
-				if (iter + 1 == temp.end())
-					break;
-				if (*iter == *(iter + 1))
-				{
-					*iter *= 2;
-					iter = temp.erase(iter + 1);
-				}
-				else
-					++iter;
-			}
-			// 임시 벡터에 저장된 수를 다시 채워넣음. 
-			int size = (int)temp.size();
-			for (int j = 0; j < size; ++j)
-			{
-				copyboard[j][i] = temp[j];
-			}
-			// 임시 벡터가 끝나면 남은 부분은 0으로 넣으면 됨.
-			for (int j = size; j < N; ++j)
-			{
-				copyboard[j][i] = 0;
+				visit[nx][ny] = true;
+				Q.push(make_pair(nx, ny));
+				adjPY.push_back(make_pair(nx, ny));
+				adj++;
 			}
 		}
 	}
-	// 하
-	else if (dir == 1)
+}
+
+// 연쇄 되는 뿌요가 있는지 확인하는 함수. 
+void Func()
+{
+	for (int i = 0; i < 12; ++i)
 	{
-		for (int i = 0; i < N; ++i)
+		for (int j = 0; j < 6; ++j)
 		{
-			vector<int> temp;
-			for (int j = 0; j < N; ++j)
+			if (board[i][j] == '.')
+				continue;
+			if (!visit[i][j])
 			{
-				if (copyboard[N - 1 - j][i] != 0)
-					temp.push_back(copyboard[N - 1 - j][i]);
-			}
-			auto iter = temp.begin();
-			for (; iter != temp.end(); )
-			{
-				if (iter + 1 == temp.end())
-					break;
-				if (*iter == *(iter + 1))
+				visit[i][j] = true;
+				Q.push(make_pair(i, j));
+				adjPY.push_back(make_pair(i, j));
+				adj = 1;
+				// i, j와 인접한 같은 색상의 뿌요 adjPY에 저장하기.
+				BFS();
+				// 인접 뿌요가 4개 이상이면 연쇄.
+				if (adj >= 4)
 				{
-					*iter *= 2;
-					iter = temp.erase(iter + 1);
+					NowChain = true;
+					for (auto pair : adjPY)
+					{
+						board[pair.first][pair.second] = '.';
+					}
 				}
-				else
-					++iter;
-			}
-			int size = (int)temp.size();
-			for (int j = 0; j < size; ++j)
-			{
-				copyboard[N - 1 - j][i] = temp[j];
-			}
-			for (int j = size; j < N; ++j)
-			{
-				copyboard[N - 1 - j][i] = 0;
-			}
-		}
-	}
-	// 좌
-	else if (dir == 2)
-	{
-		for (int i = 0; i < N; ++i)
-		{
-			vector<int> temp;
-			for (int j = 0; j < N; ++j)
-			{
-				if (copyboard[i][j] != 0)
-					temp.push_back(copyboard[i][j]);
-			}
-			auto iter = temp.begin();
-			for (; iter != temp.end(); )
-			{
-				if (iter + 1 == temp.end())
-					break;
-				if (*iter == *(iter + 1))
-				{
-					*iter *= 2;
-					iter = temp.erase(iter + 1);
-				}
-				else
-					++iter;
-			}
-			int size = (int)temp.size();
-			for (int j = 0; j < size; ++j)
-			{
-				copyboard[i][j] = temp[j];
-			}
-			for (int j = size; j < N; ++j)
-			{
-				copyboard[i][j] = 0;
-			}
-		}
-	}
-	// 우
-	else if (dir == 3)
-	{
-		for (int i = 0; i < N; ++i)
-		{
-			vector<int> temp;
-			for (int j = 0; j < N; ++j)
-			{
-				if (copyboard[i][N - 1 - j] != 0)
-					temp.push_back(copyboard[i][N - 1 - j]);
-			}
-			auto iter = temp.begin();
-			for (; iter != temp.end(); )
-			{
-				if (iter + 1 == temp.end())
-					break;
-				if (*iter == *(iter + 1))
-				{
-					*iter *= 2;
-					iter = temp.erase(iter + 1);
-				}
-				else
-					++iter;
-			}
-			int size = (int)temp.size();
-			for (int j = 0; j < size; ++j)
-			{
-				copyboard[i][N - 1 - j] = temp[j];
-			}
-			for (int j = size; j < N; ++j)
-			{
-				copyboard[i][N - 1 - j] = 0;
+				adjPY.clear();
 			}
 		}
 	}
@@ -159,39 +99,28 @@ void Move(int dir)
 
 int main()
 {
-	ios::sync_with_stdio(0);
-	cin.tie(0);
-
-	cin >> N;
-	board = vector<vector<int>>(N, vector<int>(N));
-	for (int i = 0; i < N; ++i)
+	visit = vector<vector<bool>>(12, vector<bool>(6, false));
+	for (int i = 0; i < 12; ++i)
 	{
-		for (int j = 0; j < N; ++j)
-		{
-			cin >> board[i][j];
-		}
+		string temp;
+		cin >> temp;
+		board.push_back(temp);
 	}
 
-	// 5번의 swipe 중 나올 수 있는 방향의 가지 수는 4의 5승이다.
-	for (int i = 0; i < (1 << 2 * 5); ++i)
+	while(true)
 	{
-		copyboard = board;
-		int temp = i;
-		for (int j = 0; j < 5; ++j)
-		{
-			int dir = temp % 4;
-			temp /= 4;
-			Move(dir);
-		}
-		for (int h = 0; h < N; ++h)
-		{
-			for (int w = 0; w < N; ++w)
-			{
-				Max = max(Max, copyboard[h][w]);
-			}
-		}
-	}
-	cout << Max;
+		NowChain = false;
+		Func();
+		// 이번에 연쇄 안생겼으면 break;
+		if (NowChain == false)
+			break;
+		TotalChain += NowChain;
+		// 밑으로 밀기.
+		Gravity();
+		visit = vector<vector<bool>>(12, vector<bool>(6, false));
+	} 
+
+	cout << TotalChain;
 
 	return 0;
 }
