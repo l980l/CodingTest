@@ -1,126 +1,94 @@
 ﻿#include <iostream>
 #include <vector>
-#include <queue>
 
 using namespace std;
 
-vector<string> board;
-vector<vector<bool>> visit;
-vector<pair<int, int>> adjPY;
-queue<pair<int, int>> Q;
-int dx[4] = { 0,0,1,-1 };
-int dy[4] = { 1,-1,0,0, };
-int adj = 0;
-bool NowChain;
-int TotalChain = 0;
+vector<vector<int>> Gear(4);	// 각 기어 배열
+vector<int> TopIdx(4);			// 각 기어의 12시 인덱스
 
-// 밑으로 떨어뜨리기.
-void Gravity()
+// 지금 Rotate 함수를 호출하게 만든 Gear를 prevG로 받음. 같은 경우에는 prevG가 없는 것.
+void Rotate(int GIdx, int dir, int prevG)
 {
-	for (int i = 0; i < 6; ++i)
+	bool LeftRot = false;
+	bool RightRot = false;
+
+	// 왼쪽 기어 검사
+	if (GIdx <= 3 && GIdx > 0 && GIdx <= prevG)
 	{
-		string temp;
-		for (int j = 0; j < 12; ++j)
-		{
-			if (board[12 - 1 - j][i] == '.')
-				continue;
-			temp.push_back(board[12 - 1 - j][i]);
-			// 일단은 '.'으로 채워두기. 지금보니 temp를 '.' 12개로 채워뒀어도 되겠네.
-			board[12 - 1 - j][i] = '.';
-		}
-		// 뿌요 넣기
-		int size = (int)temp.size();
-		for (int j = 0; j < size; ++j)
-		{
-			if (temp[j] == '.')
-				continue;
-			board[12 - 1 - j][i] = temp[j];
-		}
-	}
-}
+		int Top1 = TopIdx[GIdx - 1] + 2;
+		int Top2 = TopIdx[GIdx] + 6;
+		if (Top1 > 7)
+			Top1 -= 8;
+		if (Top2 > 7)
+			Top2 -= 8;
 
-// 같은 색의 뿌요가 인접해 있는 경우 adjPY 백터에 주소를 저장해두는 함수.
-void BFS()
-{
-	while (!Q.empty())
+		if (Gear[GIdx - 1][Top1] != Gear[GIdx][Top2])
+			LeftRot = true;
+	}
+
+	// 오른쪽 기어 검사
+	if (GIdx >= 0 && GIdx < 3 && GIdx >= prevG)
 	{
-		auto pair = Q.front();
-		Q.pop();
+		int Top1 = TopIdx[GIdx] + 2;
+		int Top2 = TopIdx[GIdx + 1] + 6;
+		if (Top1 > 7)
+			Top1 -= 8;
+		if (Top2 > 7)
+			Top2 -= 8;
 
-		for (int i = 0; i < 4; ++i)
-		{
-			int nx = pair.first + dx[i];
-			int ny = pair.second + dy[i];
-
-			if (nx < 0 || nx >= 12 || ny < 0 || ny >= 6 || visit[nx][ny])
-				continue;
-			if (board[pair.first][pair.second] == board[nx][ny])
-			{
-				visit[nx][ny] = true;
-				Q.push(make_pair(nx, ny));
-				adjPY.push_back(make_pair(nx, ny));
-				adj++;
-			}
-		}
+		if (Gear[GIdx][Top1] != Gear[GIdx + 1][Top2])
+			RightRot = true;
 	}
-}
 
-// 연쇄 되는 뿌요가 있는지 확인하는 함수. 
-void Func()
-{
-	for (int i = 0; i < 12; ++i)
-	{
-		for (int j = 0; j < 6; ++j)
-		{
-			if (board[i][j] == '.')
-				continue;
-			if (!visit[i][j])
-			{
-				visit[i][j] = true;
-				Q.push(make_pair(i, j));
-				adjPY.push_back(make_pair(i, j));
-				adj = 1;
-				// i, j와 인접한 같은 색상의 뿌요 adjPY에 저장하기.
-				BFS();
-				// 인접 뿌요가 4개 이상이면 연쇄.
-				if (adj >= 4)
-				{
-					NowChain = true;
-					for (auto pair : adjPY)
-					{
-						board[pair.first][pair.second] = '.';
-					}
-				}
-				adjPY.clear();
-			}
-		}
-	}
+	TopIdx[GIdx] += dir;
+	// Top 인덱스가 음수면 8을 더해서 양수로 만들어 주기.
+	if (TopIdx[GIdx] < 0)
+		TopIdx[GIdx] += 8;
+	if (TopIdx[GIdx] > 7)
+		TopIdx[GIdx] -= 8;
+
+	// 이렇게 따로 LeftRot, RightRot을 만들어서 호출하는 이유는 TopIdx[GIdx]을 변경하기 전에 양 옆 기어의 회전 여부를 구해둬야 하기 때문이다.
+	if (LeftRot)
+		Rotate(GIdx - 1, dir * -1, GIdx);
+	if (RightRot)
+		Rotate(GIdx + 1, dir * -1, GIdx);
 }
 
 int main()
 {
-	visit = vector<vector<bool>>(12, vector<bool>(6, false));
-	for (int i = 0; i < 12; ++i)
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+
+	for (int i = 0; i < 4; ++i)
 	{
 		string temp;
 		cin >> temp;
-		board.push_back(temp);
+		for (char c : temp)
+		{
+			Gear[i].push_back(c - '0');
+		}
 	}
 
-	while(true)
+	int K;
+	cin >> K;
+	for (int i = 0; i < K; ++i)
 	{
-		NowChain = false;
-		Func();
-		// 이번에 연쇄 안생겼으면 break;
-		if (NowChain == false)
-			break;
-		TotalChain += NowChain;
-		// 밑으로 밀기.
-		Gravity();
-		visit = vector<vector<bool>>(12, vector<bool>(6, false));
-	} 
+		// 톱니 번호, 회전 방향(1이 시계방향, -1이 반시계방향)
+		int x, y;
+		cin >> x >> y;
+		// 나는 기어번호를 0~3으로 쓰고 문제는 1부터 4로 써서 -1을 해줌.
+		// 1이 시계방향이고 -1이 반시계방향이라 반대로 넣어주려고 -1을 곱함.
+		Rotate(x - 1, -y, x - 1);
+	}
 
-	cout << TotalChain;
+	int Result = 0;
+	for (int i = 0; i < 4; ++i)
+	{
+		// 비트 쉬프트 연산자 이용해서 1 2 4 8 더하도록 하기
+		if (Gear[i][TopIdx[i]])
+			Result += (1 << i);
+	}
+	cout << Result;
 
 	return 0;
 }
