@@ -1,94 +1,31 @@
 ﻿#include <iostream>	
-#include <vector>
+#include <vector>	
 
 using namespace std;
 
 int N, M;
-int X, Y;
-//   2
-// 4 1 3
-//   5
-//   6
-// 문제에서는 주사위의 인덱스를 1 ~ 6으로 표현하지만 난 0 ~ 5로 함.
-int dice[6] = {};
+int r, c, d;	// 문제에서 d는 0 북 1 동 2 남 3 서 이지만 북,서,남,동으로 사용할거임.
 vector<vector<int>> board;
-// 동 서 북 남. x, y가 r, c라서 주의해야 한다.
-int dx[4] = { 0,0,-1,1 };
-int dy[4] = { 1, -1, 0, 0 };
-
-void Move(int dir)
-{
-	int nx = X + dx[dir];
-	int ny = Y + dy[dir];
-
-	// 화면 밖이면 안해
-	if (nx < 0 || nx >= N || ny < 0 || ny >= M)
-		return;
-	// 이동시켜
-	X = nx;
-	Y = ny;
-
-	// 우선 주사위를 굴려.
-	// 동. 3 0 2 5을 5 3 0 2
-	if (dir == 0)
-	{
-		int temp[4] = { dice[5], dice[3],dice[0],dice[2] };
-		dice[3] = temp[0];
-		dice[0] = temp[1];
-		dice[2] = temp[2];
-		dice[5] = temp[3];
-	}
-	// 서. 3 0 2 5을 0 2 5 3
-	else if (dir == 1)
-	{
-		int temp[4] = { dice[0], dice[2],dice[5],dice[3] };
-		dice[3] = temp[0];
-		dice[0] = temp[1];
-		dice[2] = temp[2];
-		dice[5] = temp[3];
-	}
-	// 북. 1, 0, 4, 5을 0, 4, 5, 1
-	else if (dir == 2)
-	{
-		int temp[4] = { dice[0], dice[4],dice[5],dice[1] };
-		dice[1] = temp[0];
-		dice[0] = temp[1];
-		dice[4] = temp[2];
-		dice[5] = temp[3];
-	}
-	// 남. 1, 0, 4, 5을 5, 1, 0, 4
-	else if (dir == 3)
-	{
-		int temp[4] = { dice[5], dice[1],dice[0],dice[4] };
-		dice[1] = temp[0];
-		dice[0] = temp[1];
-		dice[4] = temp[2];
-		dice[5] = temp[3];
-	}
-
-	// 지도랑 상호작용.
-	if (board[X][Y] == 0)
-	{
-		board[X][Y] = dice[5];
-	}
-	else
-	{
-		dice[5] = board[X][Y];
-		board[X][Y] = 0;
-	}
-	// 윗 면에 쓰인 수 출력
-	cout << dice[0] << '\n';
-}
+vector<vector<bool>> cleaned;
+int result = 0;
+// 회전을 반시계방향으로 90도씩 시키기 때문에 북,서,남,동을 가리키도록 만듦.
+int dx[4] = { -1,0,1,0 };
+int dy[4] = { 0,-1,0,1 };
 
 int main()
 {
 	ios::sync_with_stdio(0);
 	cin.tie(0);
-	
-	int K;
-	cin >> N >> M >> X >> Y >> K;
 
+	cin >> N >> M;
+	cin >> r >> c >> d;
+	// 편의를 위해 d를 북 서 남 동으로 사용할 것이기 때문에 
+	if (d == 1)
+		d = 3;
+	else if (d == 3)
+		d = 1;
 	board = vector<vector<int>>(N, vector<int>(M));
+	cleaned = vector<vector<bool>>(N, vector<bool>(M));
 	for (int i = 0; i < N; ++i)
 	{
 		for (int j = 0; j < M; ++j)
@@ -97,12 +34,44 @@ int main()
 		}
 	}
 
-	for (int i = 0; i < K; ++i)
+	result++;
+	cleaned[r][c] = true;
+	while (true)
 	{
-		int dir;
-		cin >> dir;
-		Move(dir - 1);
+		int FD;
+		bool cleaning = false;
+		// 무조건 회전을 먼저 하는거였네;; 이 조건 못찾아서 1시간 이상 날림;;
+		for (int i = 1; i <= 4; ++i)
+		{
+			FD = (d + i) % 4;
+			int nx = r + dx[FD];
+			int ny = c + dy[FD];
+			if (nx < 0 || nx >= N || ny < 0 || ny >= M || board[nx][ny] == 1 || cleaned[nx][ny] == true)
+				continue;
+			r = nx;
+			c = ny;
+			d = FD;
+			cleaned[nx][ny] = true;
+			result++;
+			cleaning = true;
+			break;
+		}
+		// 청소 성공 했으면 다음 구역으로.
+		if (cleaning)
+			continue;
+		// 역방향
+		FD = (d + 2) % 4;
+		int nx = r + dx[FD];
+		int ny = c + dy[FD];
+		// 청소 종료
+		if (nx < 0 || nx >= N || ny < 0 || ny >= M || board[nx][ny] == 1)
+			break;
+		// 청소는 못하고 뒤로 가는 경우. d는 그대로 유지해야 한다. 
+		r = nx;
+		c = ny;
 	}
+
+	cout << result;
 
 	return 0;
 }
