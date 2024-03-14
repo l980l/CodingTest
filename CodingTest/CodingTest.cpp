@@ -1,101 +1,97 @@
-﻿#include <iostream>
-#include <vector>
-#include <queue>
-#include <tuple>
-#include <algorithm>
+﻿#include <iostream>	
+#include <vector>	
 
 using namespace std;
 
-int origincube[5][5][5] = {};
-int suffledcube[5][5][5] = {};
-int copycube[5][5][5] = {};
-int dis[5][5][5] = {};
-int dz[6] = { 0, 0,0, 0,1,-1, };
-int dx[6] = { 1,0,-1,0, 0, 0 };
-int dy[6] = { 0,1,0,-1, 0, 0 };
+int N, M;
+vector<string> board; // 보드 판은 그대로 있고, R과 B의 위치만 이동시킬 거임.
+int ORX, ORY, OBX, OBY;
+int RX, RY, BX, BY;
 int Min = 2147483647;
 
-void Shuffle(int* Order)
+// R 굴리기
+void MoveR(int dir)
 {
-	for (int h = 0; h < 5; ++h)
+
+}
+// B 굴리기
+void MoveB(int dir)
+{
+
+}
+
+// 구술이 탈출하면 true 반환. 0 1 2 3북 동 남 서
+// 이동 경로 상으로 일직선상에 위치하면 앞에 있는 애가 먼저 움직이는 방식으로 처리해야 할듯? 따라서 북쪽이나 남쪽으로 이동하는 거면, R과 B가 같은 행인지 확인하고, 북쪽이면서 같은 행이면 x가 더 낮은 구슬부터, 남쪽이면 x가 더 높은 구슬부터. 동 서의 경우에는 같은 열인지 확인, 서쪽의 경우 y가 더 낮은 구슬, 동쪽의 경우 더 높은 구슬부터.
+bool Tilt(int dir)
+{
+	// 북
+	if (dir == 0)
 	{
-		for (int i = 0; i < 5; ++i)
+		if (ORY == OBY)
 		{
-			for (int j = 0; j < 5; ++j)
+			if (ORX > OBX)
 			{
-				suffledcube[h][i][j] = origincube[Order[h]][i][j];
+				MoveB(dir);
+				MoveR(dir);
 			}
 		}
-	}
-}
-
-// cube 복사 및 dis 배열 초기화
-void Copy()
-{
-	for (int h = 0; h < 5; ++h)
-	{
-		for (int i = 0; i < 5; ++i)
+		else
 		{
-			for (int j = 0; j < 5; ++j)
+			MoveR(dir);
+			MoveB(dir);
+		}
+	}
+	// 동
+	else if (dir == 1)
+	{
+		if (ORX == OBX)
+		{
+			if (ORY < OBY)
 			{
-				copycube[h][i][j] = suffledcube[h][i][j];
-				dis[h][i][j] = -1;
+				MoveB(dir);
+				MoveR(dir);
 			}
 		}
-	}
-}
-
-// 층 하나를 시계방향으로 회전시키는 함수.
-void Rotate(int level)
-{
-	int temp[5][5];
-	for (int i = 0; i < 5; ++i)
-	{
-		for (int j = 0; j < 5; ++j)
+		else
 		{
-			temp[i][j] = copycube[level][5 - 1 - j][i];
+			MoveR(dir);
+			MoveB(dir);
 		}
 	}
-	for (int i = 0; i < 5; ++i)
+	// 남
+	else if (dir == 2)
 	{
-		for (int j = 0; j < 5; ++j)
+		if (ORY == OBY)
 		{
-			swap(temp[i][j], copycube[level][i][j]);
+			if (ORX < OBX)
+			{
+				MoveB(dir);
+				MoveR(dir);
+			}
+		}
+		else
+		{
+			MoveR(dir);
+			MoveB(dir);
 		}
 	}
-}
-
-// 0, 0, 0에서 4, 4, 4로 이동하는 함수.
-bool Move()
-{
-	// 첫 위치나 끝이 막힌 경우 -1 
-	if (copycube[0][0][0] == 0 || copycube[4][4][4] == 0)
-		return false;
-	// BFS 해야함
-	queue<tuple<int, int, int>> Q;
-	Q.push(make_tuple(0, 0, 0));
-	dis[0][0][0] = 0;
-	while (!Q.empty())
+	// 서
+	else if (dir == 3)
 	{
-		int h, x, y;
-		tie(h, x, y) = Q.front();
-		Q.pop();
-		for (int i = 0; i < 6; ++i)
+		if (ORX == OBX)
 		{
-			int nh = h + dz[i];
-			int nx = x + dx[i];
-			int ny = y + dy[i];
-
-			if (nh < 0 || nh >= 5 || nx < 0 || nx >= 5 || ny < 0 || ny >= 5 || copycube[nh][nx][ny] == 0 || dis[nh][nx][ny] != -1)
-				continue;
-			dis[nh][nx][ny] = dis[h][x][y] + 1;
-			// 종점 도달.
-			if (nh == 4 && nx == 4 && ny == 4)
-				return true;
-			Q.push(make_tuple(nh, nx, ny));
+			if (ORY > OBY)
+			{
+				MoveB(dir);
+				MoveR(dir);
+			}
+		}
+		else
+		{
+			MoveR(dir);
+			MoveB(dir);
 		}
 	}
-	return false;
 }
 
 int main()
@@ -103,39 +99,56 @@ int main()
 	ios::sync_with_stdio(0);
 	cin.tie(0);
 
-	for (int h = 0; h < 5; ++h)
+	cin >> N >> M;
+	board = vector<string>(N);
+	for (int i = 0; i < N; ++i)
 	{
-		for (int i = 0; i < 5; ++i)
+		for (int j = 0; j < M; ++j)
 		{
-			for (int j = 0; j < 5; ++j)
+			char c;
+			// R이나 B 구슬이면 위치만 따로 저장하고, board에는 빈칸으로 만듦.
+			if (c == 'R')
 			{
-				cin >> origincube[h][i][j];
+				ORX = i;
+				ORY = j;
+				c = '.';
+			}
+			else if (c == 'B')
+			{
+				OBX = i;
+				OBY = j;
+				c = '.';
+			}
+			cin >> c;
+			board[i].push_back(c);
+		}
+	}
+	// 4의 10승 가지의 경우의 수를 처리. 나름 최적화는 하겠지만 연산량이 많다. 
+	for (int i = 0; i < (1 << (2 * 10)); ++i)
+	{
+		// R, B의 초기 위치 세팅.
+		RX = ORX, RY = ORY, BX = OBX, BY = OBY;
+		// 이번에 기울인 횟수.
+		int CurTiltCount = 0;
+		int temp = i;
+		// 최소로 기울이는 수를 찾는 것이기 때문에, 현재까지 찾은 최소 기울기 횟수 - 1 이하로 기울인 경우만 찾는다. 
+		int TempMin = Min - 1;
+		// 처음에는 10번의 기울기를 하는 경우까지 구함. 
+		if (Min == 2147483647)
+			TempMin = 10;
+		for (int j = 0; j < TempMin; ++j)
+		{
+			int dir = temp % 4;
+			temp /= 4;
+			CurTiltCount++;
+			// 기울여서 R이 나왔다면 true. 그 경우 최소값 확인후 갱신.
+			if (Tilt(dir))
+			{
+				Min = min(Min, CurTiltCount);
+				break;
 			}
 		}
 	}
-	
-	int Order[5] = { 0,1,2,3,4 };
-	do
-	{
-		Shuffle(Order);
-		for (int i = 0; i < (1 << (2 * 5)); ++i)
-		{
-			Copy();
-			int temp = i;
-			for (int j = 0; j < 5; ++j)
-			{
-				int rep = temp % 4;
-				temp /= 4;
-				for (int r = 0; r < rep; ++r)
-				{
-					Rotate(j);
-				}
-			}
-			// 길찾기 및 최단경로
-			if (Move())
-				Min = min(Min, dis[4][4][4]);
-		}
-	} while (next_permutation(Order, Order + 5));
 
 	if (Min == 2147483647)
 		Min = -1;
