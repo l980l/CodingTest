@@ -1,108 +1,145 @@
-﻿#include <iostream>	
+﻿#include <iostream>
 #include <vector>
+#include <queue>
+#include <tuple>
+#include <algorithm>
 
 using namespace std;
 
-int N, M;
-int X, Y;
-//   2
-// 4 1 3
-//   5
-//   6
-// 문제에서는 주사위의 인덱스를 1 ~ 6으로 표현하지만 난 0 ~ 5로 함.
-int dice[6] = {};
-vector<vector<int>> board;
-// 동 서 북 남. x, y가 r, c라서 주의해야 한다.
-int dx[4] = { 0,0,-1,1 };
-int dy[4] = { 1, -1, 0, 0 };
+int origincube[5][5][5] = {};
+int suffledcube[5][5][5] = {};
+int copycube[5][5][5] = {};
+int dis[5][5][5] = {};
+int dz[6] = { 0, 0,0, 0,1,-1, };
+int dx[6] = { 1,0,-1,0, 0, 0 };
+int dy[6] = { 0,1,0,-1, 0, 0 };
+int Min = 2147483647;
 
-void Move(int dir)
+void Shuffle(int* Order)
 {
-	int nx = X + dx[dir];
-	int ny = Y + dy[dir];
+	for (int h = 0; h < 5; ++h)
+	{
+		for (int i = 0; i < 5; ++i)
+		{
+			for (int j = 0; j < 5; ++j)
+			{
+				suffledcube[h][i][j] = origincube[Order[h]][i][j];
+			}
+		}
+	}
+}
 
-	// 화면 밖이면 안해
-	if (nx < 0 || nx >= N || ny < 0 || ny >= M)
-		return;
-	// 이동시켜
-	X = nx;
-	Y = ny;
+// cube 복사 및 dis 배열 초기화
+void Copy()
+{
+	for (int h = 0; h < 5; ++h)
+	{
+		for (int i = 0; i < 5; ++i)
+		{
+			for (int j = 0; j < 5; ++j)
+			{
+				copycube[h][i][j] = suffledcube[h][i][j];
+				dis[h][i][j] = -1;
+			}
+		}
+	}
+}
 
-	// 우선 주사위를 굴려.
-	// 동. 3 0 2 5을 5 3 0 2
-	if (dir == 0)
+// 층 하나를 시계방향으로 회전시키는 함수.
+void Rotate(int level)
+{
+	int temp[5][5];
+	for (int i = 0; i < 5; ++i)
 	{
-		int temp[4] = { dice[5], dice[3],dice[0],dice[2] };
-		dice[3] = temp[0];
-		dice[0] = temp[1];
-		dice[2] = temp[2];
-		dice[5] = temp[3];
+		for (int j = 0; j < 5; ++j)
+		{
+			temp[i][j] = copycube[level][5 - 1 - j][i];
+		}
 	}
-	// 서. 3 0 2 5을 0 2 5 3
-	else if (dir == 1)
+	for (int i = 0; i < 5; ++i)
 	{
-		int temp[4] = { dice[0], dice[2],dice[5],dice[3] };
-		dice[3] = temp[0];
-		dice[0] = temp[1];
-		dice[2] = temp[2];
-		dice[5] = temp[3];
+		for (int j = 0; j < 5; ++j)
+		{
+			swap(temp[i][j], copycube[level][i][j]);
+		}
 	}
-	// 북. 1, 0, 4, 5을 0, 4, 5, 1
-	else if (dir == 2)
-	{
-		int temp[4] = { dice[0], dice[4],dice[5],dice[1] };
-		dice[1] = temp[0];
-		dice[0] = temp[1];
-		dice[4] = temp[2];
-		dice[5] = temp[3];
-	}
-	// 남. 1, 0, 4, 5을 5, 1, 0, 4
-	else if (dir == 3)
-	{
-		int temp[4] = { dice[5], dice[1],dice[0],dice[4] };
-		dice[1] = temp[0];
-		dice[0] = temp[1];
-		dice[4] = temp[2];
-		dice[5] = temp[3];
-	}
+}
 
-	// 지도랑 상호작용.
-	if (board[X][Y] == 0)
+// 0, 0, 0에서 4, 4, 4로 이동하는 함수.
+bool Move()
+{
+	// 첫 위치나 끝이 막힌 경우 -1 
+	if (copycube[0][0][0] == 0 || copycube[4][4][4] == 0)
+		return false;
+	// BFS 해야함
+	queue<tuple<int, int, int>> Q;
+	Q.push(make_tuple(0, 0, 0));
+	dis[0][0][0] = 0;
+	while (!Q.empty())
 	{
-		board[X][Y] = dice[5];
+		int h, x, y;
+		tie(h, x, y) = Q.front();
+		Q.pop();
+		for (int i = 0; i < 6; ++i)
+		{
+			int nh = h + dz[i];
+			int nx = x + dx[i];
+			int ny = y + dy[i];
+
+			if (nh < 0 || nh >= 5 || nx < 0 || nx >= 5 || ny < 0 || ny >= 5 || copycube[nh][nx][ny] == 0 || dis[nh][nx][ny] != -1)
+				continue;
+			dis[nh][nx][ny] = dis[h][x][y] + 1;
+			// 종점 도달.
+			if (nh == 4 && nx == 4 && ny == 4)
+				return true;
+			Q.push(make_tuple(nh, nx, ny));
+		}
 	}
-	else
-	{
-		dice[5] = board[X][Y];
-		board[X][Y] = 0;
-	}
-	// 윗 면에 쓰인 수 출력
-	cout << dice[0] << '\n';
+	return false;
 }
 
 int main()
 {
 	ios::sync_with_stdio(0);
 	cin.tie(0);
-	
-	int K;
-	cin >> N >> M >> X >> Y >> K;
 
-	board = vector<vector<int>>(N, vector<int>(M));
-	for (int i = 0; i < N; ++i)
+	for (int h = 0; h < 5; ++h)
 	{
-		for (int j = 0; j < M; ++j)
+		for (int i = 0; i < 5; ++i)
 		{
-			cin >> board[i][j];
+			for (int j = 0; j < 5; ++j)
+			{
+				cin >> origincube[h][i][j];
+			}
 		}
 	}
-
-	for (int i = 0; i < K; ++i)
+	
+	int Order[5] = { 0,1,2,3,4 };
+	do
 	{
-		int dir;
-		cin >> dir;
-		Move(dir - 1);
-	}
+		Shuffle(Order);
+		for (int i = 0; i < (1 << (2 * 5)); ++i)
+		{
+			Copy();
+			int temp = i;
+			for (int j = 0; j < 5; ++j)
+			{
+				int rep = temp % 4;
+				temp /= 4;
+				for (int r = 0; r < rep; ++r)
+				{
+					Rotate(j);
+				}
+			}
+			// 길찾기 및 최단경로
+			if (Move())
+				Min = min(Min, dis[4][4][4]);
+		}
+	} while (next_permutation(Order, Order + 5));
+
+	if (Min == 2147483647)
+		Min = -1;
+	cout << Min;
 
 	return 0;
 }
