@@ -1,41 +1,40 @@
 ﻿#include <iostream>
 #include <vector>
-#include <queue>
 #include <algorithm>
 
 using namespace std;
 
-int N, M;
-vector<vector<int>> board;
-vector<vector<int>> copyboard;
-vector<pair<int, int>> blank;
-queue<pair<int, int>> virus;
-int Result = 0;
-int dx[4] = { 1,0,-1,0 };
-int dy[4] = { 0,-1,0,1 };
+int N;
+vector<int> Num;
+vector<int> OPRT(4);
+vector<int> vecOPRT;
+long long Min = 1000000001;
+long long Max = -1000000001;
 
-void BFS()
+// 0은 + 1은 - 2는 곱셈 3은 나눗셈. 연산을 하는 함수.
+void func()
 {
-	queue<pair<int, int>> copyvirus = virus;
-
-	while (!copyvirus.empty())
+	long long temp = Num[0];
+	for (int i = 0; i < N - 1; ++i)
 	{
-		auto pair = copyvirus.front();
-		copyvirus.pop();
-
-		for (int i = 0; i < 4; ++i)
+		switch (vecOPRT[i])
 		{
-			int nx = pair.first + dx[i];
-			int ny = pair.second + dy[i];
-
-			if (nx < 0 || nx >= N || ny < 0 || ny >= M)
-				continue;
-			if (copyboard[nx][ny] == 1 || copyboard[nx][ny] == 2)
-				continue;
-			copyboard[nx][ny] = 2;
-			copyvirus.push(make_pair(nx, ny));
+		case 0:
+			temp += Num[i + 1];
+			break;
+		case 1:
+			temp -= Num[i + 1];
+			break;
+		case 2:
+			temp *= Num[i + 1];
+			break;
+		case 3:
+			temp /= Num[i + 1];
+			break;
 		}
 	}
+	Min = min(Min, temp);
+	Max = max(Max, temp);
 }
 
 int main()
@@ -43,56 +42,31 @@ int main()
 	ios::sync_with_stdio(0);
 	cin.tie(0);
 
-	cin >> N >> M;
-	board = vector<vector<int>>(N, vector<int>(M));
+	cin >> N;
+	Num = vector<int>(N);
 	for (int i = 0; i < N; ++i)
 	{
-		for (int j = 0; j < M; ++j)
-		{
-			int x;
-			cin >> x;
-			board[i][j] = x;
-			if (x == 0)
-				blank.push_back(make_pair(i, j));
-			else if (x == 2)
-				virus.push(make_pair(i, j));
-		}
+		cin >> Num[i];
 	}
-
-	int size = blank.size();
-
-	vector<int> Wall(size);
-
-	Wall[size - 3] = 1;
-	Wall[size - 2] = 1;
-	Wall[size - 1] = 1;
+	for (int i = 0; i < 4; ++i)
+	{
+		cin >> OPRT[i];
+	}
+	// 0은 + 1은 - 2는 곱셈 3은 나눗셈
+	vecOPRT = vector<int>(N - 1);
+	auto iter = vecOPRT.begin();
+	for (int i = 0; i < 4; ++i)
+	{
+		fill(iter, iter + OPRT[i], i);
+		iter += OPRT[i];
+	}
 
 	do
 	{
-		copyboard = board;
-		for (int i = 0; i < size; ++i)
-		{
-			if (Wall[i])
-			{
-				copyboard[blank[i].first][blank[i].second] = 1;
-			}
-		}
-		BFS();
-		// copyboard에서 0번 개수 찾기
-		int NowResult = 0;
-		for (int i = 0; i < N; ++i)
-		{
-			for (int j = 0; j < M; ++j)
-			{
-				if (copyboard[i][j] == 0)
-					NowResult++;
-			}
-		}
+		func();
+	} while (next_permutation(vecOPRT.begin(), vecOPRT.end()));
 
-		Result = max(Result, NowResult);
-	} while (next_permutation(Wall.begin(), Wall.end()));
-
-	cout << Result;
+	cout << Max << '\n' << Min;
 
 	return 0;
 }
