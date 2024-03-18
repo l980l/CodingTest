@@ -5,36 +5,60 @@
 using namespace std;
 
 int N;
-vector<int> Num;
-vector<int> OPRT(4);
-vector<int> vecOPRT;
-long long Min = 1000000001;
-long long Max = -1000000001;
+vector<vector<int>> board;
+vector<int> team;
+int Min = 2147483647;
 
-// 0은 + 1은 - 2는 곱셈 3은 나눗셈. 연산을 하는 함수.
 void func()
 {
-	long long temp = Num[0];
-	for (int i = 0; i < N - 1; ++i)
+	vector<vector<int>> TeamBoard(N, vector<int>(N));
+
+	for (int i =0;i<N;++i)
 	{
-		switch (vecOPRT[i])
+		// 0 팀이면 본인의 행과 열에 -1
+		if (team[i] == 0)
 		{
-		case 0:
-			temp += Num[i + 1];
-			break;
-		case 1:
-			temp -= Num[i + 1];
-			break;
-		case 2:
-			temp *= Num[i + 1];
-			break;
-		case 3:
-			temp /= Num[i + 1];
-			break;
+			int j = 0;
+			while (j < N)
+			{
+				TeamBoard[i][j] -= 1;
+				TeamBoard[j][i] -= 1;
+				j++;
+			}
+		}
+		// 1 팀이면 본인의 행과 열에 +1
+		else if (team[i] == 1)
+		{
+			int j = 0;
+			while (j < N)
+			{
+				TeamBoard[i][j] += 1;
+				TeamBoard[j][i] += 1;
+				j++;
+			}
 		}
 	}
-	Min = min(Min, temp);
-	Max = max(Max, temp);
+
+	int T0 = 0;
+	int T1 = 0;
+	for (int i = 0; i < N; ++i)
+	{
+		for (int j = 0; j < N; ++j)
+		{
+			// 0번 팀인거임.
+			if (TeamBoard[i][j] == -2)
+			{
+				T0 += board[i][j];
+			}
+			// 1번 팀인거임.
+			else if (TeamBoard[i][j] == 2)
+			{
+				T1 += board[i][j];
+			}
+		}
+	}
+
+	Min = min(abs(T0 - T1), Min);
 }
 
 int main()
@@ -43,30 +67,23 @@ int main()
 	cin.tie(0);
 
 	cin >> N;
-	Num = vector<int>(N);
+	board = vector<vector<int>>(N, vector<int>(N));
 	for (int i = 0; i < N; ++i)
 	{
-		cin >> Num[i];
-	}
-	for (int i = 0; i < 4; ++i)
-	{
-		cin >> OPRT[i];
-	}
-	// 0은 + 1은 - 2는 곱셈 3은 나눗셈
-	vecOPRT = vector<int>(N - 1);
-	auto iter = vecOPRT.begin();
-	for (int i = 0; i < 4; ++i)
-	{
-		fill(iter, iter + OPRT[i], i);
-		iter += OPRT[i];
+		for (int j = 0; j < N; ++j)
+		{
+			cin >> board[i][j];
+		}
 	}
 
+	team = vector<int>(N);
+	fill(team.begin() + N / 2, team.begin() + N, 1);
 	do
 	{
 		func();
-	} while (next_permutation(vecOPRT.begin(), vecOPRT.end()));
+	} while (next_permutation(team.begin(), team.end()));
 
-	cout << Max << '\n' << Min;
+	cout << Min;
 
 	return 0;
 }
