@@ -4,61 +4,46 @@
 
 using namespace std;
 
-int N;
+int N, L;
 vector<vector<int>> board;
-vector<int> team;
-int Min = 2147483647;
+int Result;
 
-void func()
+bool func(vector<int>& Line)
 {
-	vector<vector<int>> TeamBoard(N, vector<int>(N));
-
-	for (int i =0;i<N;++i)
+	int idx = 0;
+	int cnt = 1; 
+	while (idx < N - 1)
 	{
-		// 0 팀이면 본인의 행과 열에 -1
-		if (team[i] == 0)
+		if (abs(Line[idx + 1] - Line[idx]) > 1)
+			return 0;
+		if (Line[idx] == Line[idx + 1])
 		{
-			int j = 0;
-			while (j < N)
-			{
-				TeamBoard[i][j] -= 1;
-				TeamBoard[j][i] -= 1;
-				j++;
-			}
+			cnt++;
+			idx++;
 		}
-		// 1 팀이면 본인의 행과 열에 +1
-		else if (team[i] == 1)
+		// 다음 높이가 더 높을 때
+		else if (Line[idx] < Line[idx + 1])
 		{
-			int j = 0;
-			while (j < N)
+			if (cnt < L)
+				return 0;
+			cnt = 1;
+			idx++;
+		}
+		// 다음 높이가 더 낮을 때
+		else
+		{
+			if (idx + L >= N)
+				return 0;
+			for (int i = idx + 1; i < idx + L; ++i)
 			{
-				TeamBoard[i][j] += 1;
-				TeamBoard[j][i] += 1;
-				j++;
+				if (Line[i] != Line[i + 1])
+					return 0;
+				idx = idx + L;
+				cnt = 0;
 			}
 		}
 	}
-
-	int T0 = 0;
-	int T1 = 0;
-	for (int i = 0; i < N; ++i)
-	{
-		for (int j = 0; j < N; ++j)
-		{
-			// 0번 팀인거임.
-			if (TeamBoard[i][j] == -2)
-			{
-				T0 += board[i][j];
-			}
-			// 1번 팀인거임.
-			else if (TeamBoard[i][j] == 2)
-			{
-				T1 += board[i][j];
-			}
-		}
-	}
-
-	Min = min(abs(T0 - T1), Min);
+	return true;
 }
 
 int main()
@@ -66,7 +51,7 @@ int main()
 	ios::sync_with_stdio(0);
 	cin.tie(0);
 
-	cin >> N;
+	cin >> N >> L;
 	board = vector<vector<int>>(N, vector<int>(N));
 	for (int i = 0; i < N; ++i)
 	{
@@ -76,14 +61,29 @@ int main()
 		}
 	}
 
-	team = vector<int>(N);
-	fill(team.begin() + N / 2, team.begin() + N, 1);
-	do
+	// 행
+	for (int i = 0; i < N; ++i)
 	{
-		func();
-	} while (next_permutation(team.begin(), team.end()));
+		vector<int> Line;
+		for (int j = 0; j < N; ++j)
+		{
+			Line.push_back(board[i][j]);
+			Result += func(Line);
+		}
+	}
 
-	cout << Min;
+	// 열
+	for (int i = 0; i < N; ++i)
+	{
+		vector<int> Line;
+		for (int j = 0; j < N; ++j)
+		{
+			Line.push_back(board[j][i]);
+			Result += func(Line);
+		}
+	}
+
+	cout << Result;
 
 	return 0;
 }
