@@ -1,89 +1,32 @@
 ﻿#include <iostream>
 #include <vector>
 #include <algorithm>
+#include <string>
 
 using namespace std;
-
-int N, L;
-vector<vector<int>> board;
-int Result;
-
-bool func(vector<int>& Line)
-{
-	int idx = 0;
-	int cnt = 1; 
-	while (idx < N - 1)
-	{
-		if (abs(Line[idx + 1] - Line[idx]) > 1)
-			return 0;
-		if (Line[idx] == Line[idx + 1])
-		{
-			cnt++;
-			idx++;
-		}
-		// 다음 높이가 더 높을 때
-		else if (Line[idx] < Line[idx + 1])
-		{
-			if (cnt < L)
-				return 0;
-			cnt = 1;
-			idx++;
-		}
-		// 다음 높이가 더 낮을 때
-		else
-		{
-			if (idx + L >= N)
-				return 0;
-			for (int i = idx + 1; i < idx + L; ++i)
-			{
-				if (Line[i] != Line[i + 1])
-					return 0;
-				idx = idx + L;
-				cnt = 0;
-			}
-		}
-	}
-	return true;
-}
 
 int main()
 {
 	ios::sync_with_stdio(0);
 	cin.tie(0);
 
-	cin >> N >> L;
-	board = vector<vector<int>>(N, vector<int>(N));
-	for (int i = 0; i < N; ++i)
+	int n;
+	cin >> n;
+	vector<long long> Nums;
+	for (int i = 0; i < n; ++i)
 	{
-		for (int j = 0; j < N; ++j)
-		{
-			cin >> board[i][j];
-		}
+		string temp;
+		cin >> temp;
+		int size = (int)temp.size();
+		reverse(temp.begin(), temp.end());
+		// stoll는 string을 long long으로 바꿔주는 함수인데, string 헤더를 include 해야 사용할 수 있음. 
+		Nums.push_back(stoll(temp));
 	}
-
-	// 행
-	for (int i = 0; i < N; ++i)
+	sort(Nums.begin(), Nums.end());
+	for (long long i : Nums)
 	{
-		vector<int> Line;
-		for (int j = 0; j < N; ++j)
-		{
-			Line.push_back(board[i][j]);
-			Result += func(Line);
-		}
+		cout << i <<'\n';
 	}
-
-	// 열
-	for (int i = 0; i < N; ++i)
-	{
-		vector<int> Line;
-		for (int j = 0; j < N; ++j)
-		{
-			Line.push_back(board[j][i]);
-			Result += func(Line);
-		}
-	}
-
-	cout << Result;
 
 	return 0;
 }
