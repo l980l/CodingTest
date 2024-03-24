@@ -9,42 +9,18 @@ int main()
 	ios::sync_with_stdio(0);
 	cin.tie(0);
 
-	int T;
-	cin >> T;
-	while (T--)
+	int n;
+	cin >> n;
+	vector<int> DP(n + 1);
+	DP[1] = 1;
+	DP[2] = 2;
+	for (int i = 3; i <= n; ++i)
 	{
-		int N, M;
-		cin >> N >> M;
-		vector<int> A;
-		vector<int> B;
-		for (int i = 0; i < N; ++i)
-		{
-			int temp;
-			cin >> temp;
-			A.push_back(temp);
-		}
-		for (int i = 0; i < M; ++i)
-		{
-			int temp;
-			cin >> temp;
-			B.push_back(temp);
-		}
-		sort(A.begin(), A.end());
-		sort(B.begin(), B.end(), greater<int>());
-		int Result = 0;
-		for (int a : A)
-		{
-			for (int i = 0; i < M; ++i)
-			{
-				int NowB = B[i];
-				if (a > NowB)
-				{
-					Result += M - i;
-					break;
-				}
-			}
-		}
-		cout << Result << '\n';
+		DP[i] = DP[i - 1] + DP[i - 2];
+		DP[i] %= 10007;
 	}
+
+	cout << DP[n];
+
 	return 0;
 }
