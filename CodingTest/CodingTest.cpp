@@ -1,6 +1,5 @@
 ﻿#include <iostream>
 #include <vector>
-#include <algorithm>
 
 using namespace std;
 
@@ -8,19 +7,27 @@ int main()
 {
 	ios::sync_with_stdio(0);
 	cin.tie(0);
-
-	int n;
-	cin >> n;
-	vector<int> DP(n + 1);
-	DP[1] = 1;
-	DP[2] = 2;
-	for (int i = 3; i <= n; ++i)
+	
+	int N, M;
+	cin >> N >> M;
+	vector<int> Num(N + 1);
+	for (int i = 1; i <= N; ++i)
 	{
-		DP[i] = DP[i - 1] + DP[i - 2];
-		DP[i] %= 10007;
+		cin >> Num[i];
+	}
+	vector<long long> DP(N + 1);
+	DP[1] = Num[1];
+	for (int i = 2; i <= N; ++i)
+	{
+		DP[i] = DP[i - 1] + Num[i];
 	}
 
-	cout << DP[n];
+	while (M--)
+	{
+		int i, j;
+		cin >> i >> j;
+		cout << DP[j] - DP[i - 1] << '\n';
+	}
 
 	return 0;
 }
