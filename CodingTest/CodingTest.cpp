@@ -9,32 +9,26 @@ int main()
 	ios::sync_with_stdio(0);
 	cin.tie(0);
 
-	int N;
-	cin >> N;
-	vector<vector<int>> Tree(N, vector<int>(N));
-	vector<vector<int>> D(N,vector<int>(N));
-	for (int i = 0; i < N; ++i)
+	int n;
+	cin >> n;
+	vector<int> D(n + 2);
+	D[1] = 1;
+	D[2] = 3;
+	for (int i = 3; i < n + 1; ++i)
 	{
-		for (int j = 0; j <= i; ++j)
+		if (i % 2)
 		{
-			cin >> Tree[i][j];
+			D[i] = D[i - 1] * 2 - 1;
+			D[i] %= 10007;
 		}
-	}
-	D[0][0] = Tree[0][0];
-	for (int i = 1; i < N; ++i)
-	{
-		for (int j = 0; j <= i; ++j)
+		else
 		{
-			int nd = D[i - 1][j];
-			if (j > 0 && nd < D[i - 1][j - 1])
-			{
-				nd = D[i - 1][j - 1];
-			}
-			D[i][j] = Tree[i][j] + nd;
+			D[i] = D[i - 1] + D[i - 2] * 2;
+			D[i] %= 10007;
 		}
 	}
 
-	cout << *max_element(D[N - 1].begin(), D[N - 1].end());
+	cout << D[n];
 
 	return 0;
 }
