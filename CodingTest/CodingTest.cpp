@@ -7,26 +7,26 @@ int main()
 {
 	ios::sync_with_stdio(0);
 	cin.tie(0);
-	
-	int N, M;
-	cin >> N >> M;
-	vector<int> Num(N + 1);
-	for (int i = 1; i <= N; ++i)
+
+	int T;
+	cin >> T;
+
+	vector<vector<int>> D(41,vector<int>(2));
+	D[0][0] = 1;
+	D[0][1] = 0;
+	D[1][0] = 0;
+	D[1][1] = 1;
+	for (int i = 2; i < 41; ++i)
 	{
-		cin >> Num[i];
-	}
-	vector<long long> DP(N + 1);
-	DP[1] = Num[1];
-	for (int i = 2; i <= N; ++i)
-	{
-		DP[i] = DP[i - 1] + Num[i];
+		D[i][0] = D[i - 1][0] + D[i - 2][0];
+		D[i][1] = D[i - 1][1] + D[i - 2][1];
 	}
 
-	while (M--)
+	while (T--)
 	{
-		int i, j;
-		cin >> i >> j;
-		cout << DP[j] - DP[i - 1] << '\n';
+		int N;
+		cin >> N;
+		cout << D[N][0] << ' ' << D[N][1] << '\n';
 	}
 
 	return 0;
