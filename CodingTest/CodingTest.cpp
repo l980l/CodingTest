@@ -9,22 +9,24 @@ int main()
 	ios::sync_with_stdio(0);
 	cin.tie(0);
 
-	int n;
-	cin >> n;
-
-	vector<int> Num(n + 1);
-	for (int i = 1; i < n + 1; ++i)
+	int T;
+	cin >> T;
+	vector<long long> D(101);
+	D[1] = 1;
+	D[2] = 1;
+	D[3] = 1;
+	D[4] = 2;
+	D[5] = 2;
+	for (int i = 6; i < 101; ++i)
 	{
-		cin >> Num[i];
+		D[i] = D[i - 1] + D[i - 5];
 	}
-
-	vector<int> D(n + 1);
-	for (int i = 1; i < n + 1; ++i)
+	while (T--)
 	{
-		D[i] = max(0, D[i - 1]) + Num[i];
+		int N;
+		cin >> N;
+		cout << D[N] << '\n';
 	}
-
-	cout << *max_element(D.begin() + 1, D.end());
 
 	return 0;
 }
