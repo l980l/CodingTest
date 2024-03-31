@@ -9,24 +9,33 @@ int main()
 	ios::sync_with_stdio(0);
 	cin.tie(0);
 
-	int T;
-	cin >> T;
-	vector<long long> D(101);
-	D[1] = 1;
-	D[2] = 1;
-	D[3] = 1;
-	D[4] = 2;
-	D[5] = 2;
-	for (int i = 6; i < 101; ++i)
+	int N;
+	cin >> N;
+
+	vector<int> T(N + 1);
+	vector<int> P(N + 1);
+
+	for (int i = 1; i < N + 1; ++i)
 	{
-		D[i] = D[i - 1] + D[i - 5];
+		cin >> T[i];
+		cin >> P[i];
 	}
-	while (T--)
+
+	vector<long long> D(N + 1);
+
+	for (int i = 1; i < N + 1; ++i)
 	{
-		int N;
-		cin >> N;
-		cout << D[N] << '\n';
+		for (int j = 1; j <= i; ++j)
+		{
+			// 현재 날짜의 상담에 영향을 주지 않는 상담일
+			if (T[j] + j <= i + 1)
+			{
+				D[i] = max(D[i], D[j - 1] + P[j]);
+			}
+		}
 	}
+
+	cout << D[N];
 
 	return 0;
 }
