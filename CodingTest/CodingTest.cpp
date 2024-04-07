@@ -9,30 +9,24 @@ int main()
 	ios::sync_with_stdio(0);
 	cin.tie(0);
 
-	string A;
-	string B;
-	cin >> A >> B;
+	int N;
+	cin >> N;
 
-	// D[i][j]는 A의 i-1번째 글자와 B의 j-1번째 글자까지의 최장 공통 부분 수열의 길이이다.
-	vector<vector<int>> D(A.size() + 1, vector<int>(B.size() + 1));
+	// i의 최소 제곱수의 합의 항 개수
+	vector<int> D(N + 1);
 
-	int ASize = A.size();
-	int BSize = B.size();
-
-	for (int i = 1; i <= ASize; ++i)
+	for (int i = 1; i < N + 1; ++i)
 	{
-		for (int j = 1; j <= BSize; ++j)
+		// i를 구성하는 제곱수는 최대 i 개의 1제곱수임.
+		D[i] = i;
+		// j의 제곱이 i보다 작은 경우, j의 제곱을 뺀 수의 최소 제곱수의 합의 항 개수에 + 1(j의 제곱 1개를 더해주는 거임)만 한 값과 현재 값을 비교하여 더 작은 값으로 세팅한다. 
+		for (int j = 1; j * j <= i; ++j)
 		{
-			// 이번에 비교할 수들이 같다면, A와 B 모두의 이전 인덱스까지의 최장 공통 부분 수열의 길이 + 1을 해야 한다.
-			if (A[i - 1] == B[j - 1])
-				D[i][j] = D[i - 1][j - 1] + 1;
-			// 다른 경우에는 A나 B 둘 중 하나의 이전 인덱스까지의 최장 공통 부분 수열의 길이를 그대로 이어야 한다. 
-			else
-				D[i][j] = max(D[i - 1][j], D[i][j - 1]);
+			D[i] = min(D[i], D[i - j * j] + 1);
 		}
 	}
 
-	cout << D[ASize][BSize];
+	cout << D[N];
 
 	return 0;
 }
