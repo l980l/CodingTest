@@ -9,38 +9,41 @@ int main()
 	ios::sync_with_stdio(0);
 	cin.tie(0);
 
-	int n, m;
-	cin >> n >> m;
+	int N;
+	cin >> N;
 
-	vector<vector<int>> board(n + 1, vector<int>(m + 1));
-	// D[i][j]: i,j 좌표를 오른쪽 아래로 하는 정사각형의 한 변의 크기.
-	vector<vector<int>> D(n + 1, vector<int>(m + 1));
-
-	for (int i = 1; i <= n; ++i)
+	vector<pair<int, int>> Flowers;
+	for (int i = 0; i < N; ++i)
 	{
-		string temp;
-		cin >> temp;
-		for (int j = 1; j <= m; ++j)
-		{
-			board[i][j] = temp[j] - '0';
-		}
+		int sm, sd, em, ed;
+		cin >> sm >> sd >> em >> ed;
+
+		Flowers.push_back(make_pair(sm * 100 + sd, em * 100 + ed));
 	}
 	
-	int result = 0;
-	for (int i = 1; i <= n; ++i)
+	int Day = 301;
+	int Result = 0;
+	while (Day < 1201)
 	{
-		for (int j = 1; j <= m; ++j)
+		int NextDay = Day;	// 꽃의 추가로 변경될 종료일.
+		for (int i = 0; i < N; ++i)
 		{
-			if (board[i][j])
-			{
-				// 좌상단, 상단, 좌측 3군데 중 최소 D 값에 + 1을 해야 정사각형을 만들 수 있다.
-				D[i][j] = min({ D[i][j - 1], D[i - 1][j], D[i - 1][j - 1] }) + 1;
-				result = max(result, D[i][j]);
-			}
+			// 추가할 수 있는 꽃인 경우
+			if (Flowers[i].first <= Day && Flowers[i].second > NextDay)
+				NextDay = Flowers[i].second;
 		}
-	}
 
-	cout << result * result;
+		// 추가할 꽃이 없는 경우. 
+		if (NextDay == Day)
+		{
+			cout << 0;
+			return 0;
+		}
+		
+		// 꽃 개수와 종료일 업데이트.
+		Result++;
+		Day = NextDay;
+	}
 
 	return 0;
 }
