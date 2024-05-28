@@ -1,6 +1,5 @@
 ﻿#include <iostream>
 #include <vector>
-#include <algorithm>
 
 using namespace std;
 
@@ -9,40 +8,28 @@ int main()
 	ios::sync_with_stdio(0);
 	cin.tie(0);
 
-	int N;
-	cin >> N;
-
-	vector<pair<int, int>> Flowers;
-	for (int i = 0; i < N; ++i)
+	int T;
+	cin >> T;
+	while (T--)
 	{
-		int sm, sd, em, ed;
-		cin >> sm >> sd >> em >> ed;
+		int N;
+		cin >> N;
 
-		Flowers.push_back(make_pair(sm * 100 + sd, em * 100 + ed));
-	}
-	
-	int Day = 301;
-	int Result = 0;
-	while (Day < 1201)
-	{
-		int NextDay = Day;	// 꽃의 추가로 변경될 종료일.
+		vector<int> Stock(N);
 		for (int i = 0; i < N; ++i)
+			cin >> Stock[i];
+		// 뒤에서부터 주식 값을 확인하며 판매.
+		int Max = Stock[N - 1];	// 판매 전까지 가장 큰 주식 값.
+		long long Result = 0;
+		for (int i = N - 2; i >= 0; --i)
 		{
-			// 추가할 수 있는 꽃인 경우
-			if (Flowers[i].first <= Day && Flowers[i].second > NextDay)
-				NextDay = Flowers[i].second;
+			// 이날 가격이 이후의 가격보다 큰 경우. Max를 업데이트. 그 전에 다 팔아야 되는 것이지.
+			if (Stock[i] > Max)
+				Max = Stock[i];
+			// 지금까지 가장 큰 주식 가격 - 현재 주식 가격을 구하고 누적.
+			Result += Max - Stock[i];
 		}
-
-		// 추가할 꽃이 없는 경우. 
-		if (NextDay == Day)
-		{
-			cout << 0;
-			return 0;
-		}
-		
-		// 꽃 개수와 종료일 업데이트.
-		Result++;
-		Day = NextDay;
+		cout << Result << '\n';
 	}
 
 	return 0;
