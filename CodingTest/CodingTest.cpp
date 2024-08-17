@@ -1,6 +1,5 @@
 ﻿#include <iostream>
 #include <vector>
-#include <algorithm>
 
 using namespace std;
 
@@ -9,34 +8,77 @@ int main()
 	ios::sync_with_stdio(0);
 	cin.tie(0);
 
-	long long N, M;
-	cin >> N >> M;
-	vector<long long> Num(N);
-	for (int i = 0; i < N; ++i)
+	int N;
+	cin >> N;
+
+	// N이 1이면 0 바로 반환.
+	if (N == 1)
 	{
-		cin >> Num[i];
+		cout << 0;
+		return 0;
 	}
 
-	sort(Num.begin(), Num.end());
+	// 에라스토테네스의 체
+	vector<bool> vecIsPrime(N + 1, true);
+	vector<int> vecPrime;
 
-	long long Min = 2000000001;
-	for (int i = 0; i < N - 1; ++i)
+	vecIsPrime[2] = true;
+
+	for (int i = 2; i * i <= N; ++i)
 	{
-		long long Now = Num[i];
-		// Num + M이 어디 들어가나
-		auto iter = lower_bound(Num.begin(), Num.end(), Now + M);
-		// M 이상의 값을 구한거임.
-		if (iter != Num.end())
+		if (vecIsPrime[i])
 		{
-			Min = min(Min, *iter - Num[i]);
-			if (Min == M)
+			for (int j = i * i; j <= N; j += i)
 			{
-				cout << Min;
-				return 0;
+				vecIsPrime[j] = false;
 			}
 		}
 	}
-	cout << Min;
 
-	return 0;
+	for (int i = 2; i <= N; ++i)
+	{
+		if (vecIsPrime[i])
+			vecPrime.push_back(i);
+	}
+
+	int st = 0;
+	int en = 0;
+
+	int count = 0;
+	int sum = 0;
+
+	sum += vecPrime[en];
+
+	while (st <= en && en < vecPrime.size())
+	{
+		if (sum == N)
+		{
+			count++;
+			st++;
+			en++;
+
+			if (en < vecPrime.size())
+				sum = sum - vecPrime[st - 1] + vecPrime[en];
+		}
+
+		else if (sum < N)
+		{
+			en ++;
+
+			if(en < vecPrime.size())
+				sum += vecPrime[en];
+		}
+
+		else if (sum > N)
+		{
+			st++;
+
+			if (st <= en)
+				sum -= vecPrime[st - 1];
+		}
+	}
+
+	cout << count;
+
+	return 0;		
 }
