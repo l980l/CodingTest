@@ -19,6 +19,8 @@ int main() {
         Num.push_back(temp);
     }
 
+    Num.push_back(0);
+
     long long sum = Num[0];
     int st = 0;
     int en = 1;
@@ -29,26 +31,11 @@ int main() {
         if (sum == M)
             result++;
         if (sum <= M)
-        {
-            if (en < int(Num.size()))
-                sum += Num[en++];
-        }
+            sum += Num[en++];
         if (sum > M)
             sum -= Num[st++];
         if (en >= int(Num.size()))
-        {
-            if (sum == M)
-                result++;
             break;
-        }
-    }
-
-    if (N == 1)
-    {
-        if (Num[0] == M)
-            result = 1;
-        else
-            result = 0;
     }
 
     cout << result;
