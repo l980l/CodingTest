@@ -7,44 +7,43 @@ int main() {
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int N, K;
-    cin >> N >> K;
+    int N, d, k, c;
+    cin >> N >> d >> k >> c;
+    vector<int> Sushi(N);
+    vector<int> visit(d + 1);
 
-    vector<long long> Num(N);
     for (int i = 0; i < N; ++i)
     {
-        cin >> Num[i];
+        cin >> Sushi[i];
     }
 
-    int en = 0;
-    int nowK = K;
-    int nowCount = 0;
+    // 초기 세팅
+    visit[c]++;
+    int count = 1;
     int result = 0;
-
-    for (int st = 0; st < N; ++st)
+    for (int i = 0; i < k; ++i)
     {
-        while (en < N)
-        {
-            if (Num[en] % 2)
-            {
-                nowK--;
-                if (nowK < 0)
-                {
-                    nowK++;
-                    break;
-                }
-            }
-            else
-                nowCount++;
-            en++;
-        }
+        if(visit[Sushi[i]] == 0)
+            count++;
 
-        result = max(result, nowCount);
+        visit[Sushi[i]]++;
+    }
+    result = max(result, count);
 
-        if (Num[st] % 2)
-            nowK++;
-        else
-            nowCount--;
+    int en = k;
+    for (int st = 1; st < N; ++st)
+    {
+        if (--visit[Sushi[st - 1]] == 0)
+            count--;
+        if (visit[Sushi[en]] == 0)
+            count++;
+        visit[Sushi[en]]++;
+
+        result = max(result, count);
+
+        en++;
+        if (en == N)
+            en = 0;
     }
 
     cout << result;
