@@ -7,35 +7,44 @@ int main() {
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int N;
-    long long M;
-    cin >> N >> M;
+    int N, K;
+    cin >> N >> K;
 
-    vector<int> Num;
+    vector<long long> Num(N);
     for (int i = 0; i < N; ++i)
     {
-        int temp;
-        cin >> temp;
-        Num.push_back(temp);
+        cin >> Num[i];
     }
 
-    Num.push_back(0);
-
-    long long sum = Num[0];
-    int st = 0;
-    int en = 1;
+    int en = 0;
+    int nowK = K;
+    int nowCount = 0;
     int result = 0;
 
-    while (true)
+    for (int st = 0; st < N; ++st)
     {
-        if (sum == M)
-            result++;
-        if (sum <= M)
-            sum += Num[en++];
-        if (sum > M)
-            sum -= Num[st++];
-        if (en >= int(Num.size()))
-            break;
+        while (en < N)
+        {
+            if (Num[en] % 2)
+            {
+                nowK--;
+                if (nowK < 0)
+                {
+                    nowK++;
+                    break;
+                }
+            }
+            else
+                nowCount++;
+            en++;
+        }
+
+        result = max(result, nowCount);
+
+        if (Num[st] % 2)
+            nowK++;
+        else
+            nowCount--;
     }
 
     cout << result;
