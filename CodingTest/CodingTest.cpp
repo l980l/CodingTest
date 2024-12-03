@@ -1,52 +1,40 @@
 ﻿#include <iostream>
+#include <unordered_map>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
-int main() {
+int main()
+{
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int N, d, k, c;
-    cin >> N >> d >> k >> c;
-    vector<int> Sushi(N);
-    vector<int> visit(d + 1);
+    int K, L;
+    cin >> K >> L;
 
-    for (int i = 0; i < N; ++i)
+    unordered_map<string, int> queue;
+
+    for (int i = 0; i < L; ++i)
     {
-        cin >> Sushi[i];
+        string temp;
+        cin >> temp;
+
+        queue[temp] = i;
     }
 
-    // 초기 세팅
-    visit[c]++;
-    int count = 1;
-    int result = 0;
-    for (int i = 0; i < k; ++i)
+    vector<pair<int, string>> vec;
+    for (auto student : queue)
     {
-        if(visit[Sushi[i]] == 0)
-            count++;
-
-        visit[Sushi[i]]++;
+        vec.push_back(make_pair(student.second, student.first));
     }
-    result = max(result, count);
+    sort(vec.begin(), vec.end());
 
-    int en = k;
-    for (int st = 1; st < N; ++st)
+    int last = min((int)vec.size(), K);
+    for (int i = 0; i < last; ++i)
     {
-        if (--visit[Sushi[st - 1]] == 0)
-            count--;
-        if (visit[Sushi[en]] == 0)
-            count++;
-        visit[Sushi[en]]++;
-
-        result = max(result, count);
-
-        en++;
-        if (en == N)
-            en = 0;
+        cout << vec[i].second << "\n";
     }
-
-    cout << result;
 
     return 0;
 }
