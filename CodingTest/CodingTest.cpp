@@ -1,6 +1,5 @@
 ﻿#include <iostream>
 #include <unordered_map>
-#include <string>
 
 using namespace std;
 
@@ -12,14 +11,14 @@ int main()
     int N, M;
     cin >> N >> M;
 
-    unordered_map<string, int> dictionary1;
-    unordered_map<int, string> dictionary2;
+    unordered_map<string, string> sites;
+
     for (int i = 0; i < N; ++i)
     {
-        string temp;
-        cin >> temp;
-        dictionary1[temp] = i + 1;
-        dictionary2[i + 1] = temp;
+        string temp, temp2;
+        cin >> temp >> temp2;
+
+        sites[temp] = temp2;
     }
 
     for (int i = 0; i < M; ++i)
@@ -27,16 +26,7 @@ int main()
         string temp;
         cin >> temp;
 
-        auto findResult = dictionary1.find(temp);
-        if (findResult != dictionary1.end())
-            cout << (*findResult).second << "\n";
-
-        else
-        {
-            int tempInt = stoi(temp);
-            auto result = dictionary2.find(tempInt);
-            cout << (*result).second << "\n";
-        }
+        cout << sites[temp] << "\n";
     }
 
     return 0;
