@@ -8,25 +8,38 @@ int main()
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int N, M;
-    cin >> N >> M;
+    int t, n;
+    cin >> t;
 
-    unordered_map<string, string> sites;
+    unordered_map<string, int> clothes;
+    string temp, temp2;
 
-    for (int i = 0; i < N; ++i)
+    while (t--)
     {
-        string temp, temp2;
-        cin >> temp >> temp2;
+        cin >> n;
+        clothes.clear();
 
-        sites[temp] = temp2;
-    }
+        if (n == 0)
+        {
+            cout << 0 << "\n";
+            continue;
+        }
 
-    for (int i = 0; i < M; ++i)
-    {
-        string temp;
-        cin >> temp;
+        while (n--)
+        {
+            cin >> temp >> temp2;
+            ++clothes[temp2];
+        }
 
-        cout << sites[temp] << "\n";
+        int result = 0;
+        for (auto c : clothes)
+        {
+            if (result == 0)
+                result = c.second + 1;
+            else
+                result *= c.second + 1;
+        }
+        cout << result - 1 << "\n";
     }
 
     return 0;
