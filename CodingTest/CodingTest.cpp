@@ -1,28 +1,20 @@
 ﻿#include <iostream>
-#include <vector>
+#include <unordered_set>
 #include <unordered_map>
-#include <queue>
+#include <algorithm>
 
 using namespace std;
 
-int N, M, K;
-vector<string> board;
-unordered_map<string, int> strings;
+long long N, P, Q;
 
-int dx[8] = { 1, 0, -1, 0, 1, -1, 1, -1 };
-int dy[8] = { 0, 1, 0, -1, 1, -1, -1, 1 };
-
-void func(int x, int y, string madeStr)
+void func(long long n, unordered_set<long long>& set)
 {
-    ++strings[madeStr];
-    if (madeStr.size() >= 5)
+    if (n == 0)
         return;
-    for (int i = 0; i < 8; ++i)
-    {
-        int nx = (x + dx[i] + N) % N;
-        int ny = (y + dy[i] + M) % M;
-        func(nx, ny, madeStr + board[nx][ny]);
-    }
+
+    set.insert(n);
+    func(n / P, set);
+    func(n / Q, set);
 }
 
 int main()
@@ -30,31 +22,28 @@ int main()
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    cin >> N >> M >> K;
-    board = vector<string>(N);
+    cin >> N >> P >> Q;
 
-    for (int i = 0; i < N; ++i)
+    unordered_map<long long, long long> DP;
+    DP[0] = 1;
+
+    vector<long long> idxList;
     {
-        cin >> board[i];
+        unordered_set<long long> idxSet;
+        func(N, idxSet);
+        idxList = vector(idxSet.begin(), idxSet.end());
     }
 
-    string madeStr;
-    for (int i = 0; i < N; ++i)
+    sort(idxList.begin(), idxList.end());
+
+    auto iter = idxList.begin();
+
+    for (long long i : idxList)
     {
-        for (int j = 0; j < M; ++j)
-        {
-            madeStr = board[i][j];
-            func(i, j, madeStr);
-        }
+        DP[i] = DP[i / P] + DP[i / Q];
     }
 
-    while (K--)
-    {
-        string temp;
-        cin >> temp;
-
-        cout << strings[temp] << '\n';
-    }
+    cout << DP[N];
 
     return 0;
 }
