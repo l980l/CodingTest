@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include <set>
+#include <vector>
 
 using namespace std;
 
@@ -8,51 +9,68 @@ int main()
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int N, K;
-    cin >> N >> K;
-
-    multiset<pair<int, int>> J;
+    int N, P, L;
+    cin >> N;
+    vector<set<int>> prob(101);
     for (int i = 0; i < N; ++i)
     {
-        int M, V;
-        cin >> M >> V;
-
-        J.insert(make_pair(V, M));
+        cin >> P >> L;
+        prob[L].insert(P);
     }
 
-    multiset<int> Bag;
-    for(int i =0;i<K;++i)
-    {
-        int c;
-        cin >> c;
-        Bag.insert(c);
-    }
+    int M;
+    cin >> M;
+    string opr;
 
-    long long result = 0;
-    
-    auto iter = prev(J.end());
-    for (; iter != J.begin(); --iter)
+    while (M--)
     {
-        if (Bag.empty() == true)
-            break;
-
-        auto bagIter = Bag.lower_bound((*iter).second);
-        if (bagIter != Bag.end())
+        cin >> opr;
+        
+        if (opr == "recommend")
         {
-            result += (*iter).first;
-            Bag.erase(bagIter);
+            cin >> P;
+            if (P == 1)
+            {
+                for (int i = 100; i > 0; --i)
+                {
+                    if (prob[i].empty() == false)
+                    {
+                        cout << *prev(prob[i].end()) << "\n";
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 1; i < 101; ++i)
+                {
+                    if (prob[i].empty() == false)
+                    {
+                        cout << *prob[i].begin() << "\n";
+                        break;
+                    }
+                }
+            }
+        }
+        else if (opr == "add")
+        {
+            cin >> P >> L;
+
+            prob[L].insert(P);
+        }
+        else if (opr == "solved")
+        {
+            cin >> P;
+            for (int j = 1; j < 101; ++j)
+            {
+                if (prob[j].find(P) != prob[j].end())
+                {
+                    prob[j].erase(prob[j].find(P));
+                    break;
+                }
+            }
         }
     }
-
-    iter = J.begin();
-    auto bagIter = Bag.lower_bound((*iter).second);
-    if (bagIter != Bag.end())
-    {
-        result += (*iter).first;
-        Bag.erase(bagIter);
-    }
-
-    cout << result;
 
     return 0;
 }
