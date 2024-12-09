@@ -1,6 +1,5 @@
 ﻿#include <iostream>
 #include <set>
-#include <vector>
 
 using namespace std;
 
@@ -9,65 +8,53 @@ int main()
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int N, P, L;
-    cin >> N;
-    vector<set<int>> prob(101);
-    for (int i = 0; i < N; ++i)
+    int N, Q;
+    cin >> N >> Q;
+
+    set<int> lm;
+    int isLM;
+    for (int i = 1; i <= N; ++i)
     {
-        cin >> P >> L;
-        prob[L].insert(P);
+        cin >> isLM;
+        if (isLM == 1)
+            lm.insert(i);
     }
 
-    int M;
-    cin >> M;
-    string opr;
-
-    while (M--)
+    int x, y;
+    int idx = 1;
+    while (Q--)
     {
-        cin >> opr;
-        
-        if (opr == "recommend")
+        cin >> x;
+
+        if (x == 1)
         {
-            cin >> P;
-            if (P == 1)
-            {
-                for (int i = 100; i > 0; --i)
-                {
-                    if (prob[i].empty() == false)
-                    {
-                        cout << *prev(prob[i].end()) << "\n";
-                        break;
-                    }
-                }
-            }
+            cin >> y;
+
+            auto iter = lm.find(y);
+            if (iter != lm.end())
+                lm.erase(iter);
+            else
+                lm.insert(y);
+        }
+        else if (x == 2)
+        {
+            cin >> y;
+
+            idx = idx + (y % N);
+            if (idx > N)
+                idx %= N;
+        }
+        else if (x == 3)
+        {
+            if (lm.empty() == true)
+                cout << -1 << "\n";
             else
             {
-                for (int i = 1; i < 101; ++i)
-                {
-                    if (prob[i].empty() == false)
-                    {
-                        cout << *prob[i].begin() << "\n";
-                        break;
-                    }
-                }
-            }
-        }
-        else if (opr == "add")
-        {
-            cin >> P >> L;
-
-            prob[L].insert(P);
-        }
-        else if (opr == "solved")
-        {
-            cin >> P;
-            for (int j = 1; j < 101; ++j)
-            {
-                if (prob[j].find(P) != prob[j].end())
-                {
-                    prob[j].erase(prob[j].find(P));
-                    break;
-                }
+                auto iter = lm.lower_bound(idx);
+                if (iter == lm.end())
+                    cout << *lm.begin() + (N - idx) << "\n";
+                else
+                    cout << *iter - idx << "\n";
             }
         }
     }
