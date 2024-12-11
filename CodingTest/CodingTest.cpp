@@ -8,54 +8,125 @@ int main()
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int N, Q;
-    cin >> N >> Q;
+    int N, P, L, G, M;
+    pair<int, int> PN[100001];
+    set<int> PL[101];
+    set<int> PG[101][101];
 
-    set<int> lm;
-    int isLM;
-    for (int i = 1; i <= N; ++i)
+    cin >> N;
+
+    while(N--)
     {
-        cin >> isLM;
-        if (isLM == 1)
-            lm.insert(i);
+        cin >> P >> L >> G;
+        PN[P] = { L,G };
+        PL[L].insert(P);
+        PG[G][L].insert(P);
     }
 
-    int x, y;
-    int idx = 1;
-    while (Q--)
+    cin >> M;
+    string op;
+    int x;
+    while (M--)
     {
-        cin >> x;
-
-        if (x == 1)
+        cin >> op;
+        
+        if (op == "recommend")
         {
-            cin >> y;
-
-            auto iter = lm.find(y);
-            if (iter != lm.end())
-                lm.erase(iter);
-            else
-                lm.insert(y);
-        }
-        else if (x == 2)
-        {
-            cin >> y;
-
-            idx = idx + (y % N);
-            if (idx > N)
-                idx %= N;
-        }
-        else if (x == 3)
-        {
-            if (lm.empty() == true)
-                cout << -1 << "\n";
+            cin >> G >> x;
+            if (x == 1)
+            {
+                for (int i = 100; i >= 1; --i)
+                {
+                    if (PG[G][i].empty() == false)
+                    {
+                        cout << *(prev(PG[G][i].end())) << "\n";
+                        break;
+                    }
+                }
+            }
             else
             {
-                auto iter = lm.lower_bound(idx);
-                if (iter == lm.end())
-                    cout << *lm.begin() + (N - idx) << "\n";
-                else
-                    cout << *iter - idx << "\n";
+                for (int i = 1; i < 101; ++i)
+                {
+                    if (PG[G][i].empty() == false)
+                    {
+                        cout << *PG[G][i].begin() << "\n";
+                        break;
+                    }
+                }
             }
+        }
+
+        else if (op == "recommend2")
+        {
+            cin >> x;
+            if (x == 1)
+            {
+                for (int i = 100; i >= 1; --i)
+                {
+                    if (PL[i].empty() == false)
+                    {
+                        cout << *(prev(PL[i].end())) << "\n";
+                        break;
+                    }
+                }
+            }
+
+            else
+            {
+                for (int i = 1; i <= 100; ++i)
+                {
+                    if (PL[i].empty() == false)
+                    {
+                        cout << *PL[i].begin() << "\n";
+                        break;
+                    }
+                }
+            }
+        }
+
+        else if (op == "recommend3")
+        {
+            cin >> x >> L;
+            int ans = -1;
+            if (x == 1)
+            {
+                for (int i = L; i < 101; ++i)
+                {
+                    if (PL[i].empty() == false)
+                    {
+                        ans = *PL[i].begin();
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = L - 1; i >= 1; --i)
+                {
+                    if (PL[i].empty() == false)
+                    {
+                        ans = *(prev(PL[i].end()));
+                        break;
+                    }
+                }
+            }
+            cout << ans << "\n";
+        }
+
+        else if (op == "add")
+        {
+            cin >> P >> L >> G;
+            PN[P] = { L,G };
+            PL[L].insert(P);
+            PG[G][L].insert(P);
+        }
+
+        else if (op == "solved")
+        {
+            cin >> P;
+            PL[PN[P].first].erase(P);
+            PG[PN[P].second][PN[P].first].erase(P);
         }
     }
 
