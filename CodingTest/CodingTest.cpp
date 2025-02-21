@@ -4,14 +4,15 @@
 
 using namespace std;
 
+
 int main()
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    priority_queue<pair<long long, int>, vector<pair<long long, int>>, greater<pair<long long, int>>> pq;
-    int N;
-    long long x;
+    priority_queue<int, vector<int>, greater<int>> pq;
+
+    int N, x;
     cin >> N;
 
     while (N--)
@@ -20,29 +21,20 @@ int main()
 
         if (x == 0)
         {
-            if (pq.empty())
-                cout << 0 << "\n";
+            if (pq.empty() == true)
+            {
+                cout << 0 << '\n';
+            }
             else
             {
-                cout << pq.top().first * pq.top().second << "\n";
+                cout << pq.top() << '\n';
                 pq.pop();
             }
         }
 
         else
         {
-            pair<int, int> temp;
-            if (x > 0)
-            {
-                temp.first = x;
-                temp.second = 1;
-            }
-            else
-            {
-                temp.first = -x;
-                temp.second = -1;
-            }
-            pq.push(temp);
+            pq.push(x);
         }
     }
 
