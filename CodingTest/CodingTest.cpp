@@ -4,7 +4,6 @@
 
 using namespace std;
 
-
 int main()
 {
     ios::sync_with_stdio(0);
@@ -12,31 +11,19 @@ int main()
 
     priority_queue<int, vector<int>, greater<int>> pq;
 
-    int N, x;
-    cin >> N;
+    int n, x;
+    cin >> n;
 
-    while (N--)
+    for (int i = 0; i < n * n; ++i)
     {
         cin >> x;
+        pq.push(x);
 
-        if (x == 0)
-        {
-            if (pq.empty() == true)
-            {
-                cout << 0 << '\n';
-            }
-            else
-            {
-                cout << pq.top() << '\n';
-                pq.pop();
-            }
-        }
-
-        else
-        {
-            pq.push(x);
-        }
+        if ((int)pq.size() > n)
+            pq.pop();
     }
+    
+    cout << pq.top();
 
     return 0;
 }
