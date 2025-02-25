@@ -9,54 +9,47 @@ int main()
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int N, d, c;
-    cin >> N;
+    int v, e;
 
-    // 초기 정렬에는 pq가 아니라 vector에 넣고 sort 하는게 나을 거 같기도
-    vector<priority_queue<int, vector<int>>> vecPQ(N + 1);
+    cin >> v >> e;
 
-    for (int i = 1; i <= N; ++i)
+    vector<vector<int>> graph(v + 1);
+    
+    int x, y;
+
+    for (int i = 0; i < e; ++i)
     {
-        cin >> d >> c;
-        vecPQ[d].push(c);
+        cin >> x >> y;
+        
+        graph[x].push_back(y);
+        graph[y].push_back(x);
     }
 
-    priority_queue<int, vector<int>, greater<int>> resultPQ;
-    long long result = 0;
+    int result = 0;
 
-    for (int i = 1; i <= N; ++i)
+    vector<bool> visit(v + 1, false);
+    queue<int> queue;
+
+    visit[1] = true;
+    queue.push(1);
+
+    while (queue.empty() == false)
     {
-        if (vecPQ[i].empty() == true)
-            continue;
+        int now = queue.front();
+        queue.pop();
 
-        resultPQ.push(vecPQ[i].top());
-        result += vecPQ[i].top();
-        vecPQ[i].pop();
-
-        while (true)
+        for (int i : graph[now])
         {
-            if (resultPQ.size() < i && vecPQ[i].empty() == false)
+            if (visit[i] == false)
             {
-                resultPQ.push(vecPQ[i].top());
-                result += vecPQ[i].top();
-                vecPQ[i].pop();
+                visit[i] = true;
+                queue.push(i);
+                result += 1;
             }
-
-            else if (resultPQ.empty() == false && vecPQ[i].empty() == false && resultPQ.top() < vecPQ[i].top())
-            {
-                result -= resultPQ.top();
-                resultPQ.pop();
-                resultPQ.push(vecPQ[i].top());
-                result += vecPQ[i].top();
-                vecPQ[i].pop();
-            }
-
-            else
-                break;
         }
     }
 
     cout << result;
 
     return 0;
-}
+} 
