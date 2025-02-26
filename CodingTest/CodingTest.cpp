@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <vector>
-#include <stack>
+#include <queue>
+#include <algorithm>
 
 using namespace std;
 
@@ -9,52 +10,67 @@ int main()
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int N;
-    cin >> N;
+    int n;
+    cin >> n;
 
-    int adj[101][101] = {};
+    vector<vector<int>> adj(n + 1);
 
-    for (int i = 1; i <= N; ++i)
+    int x, y;
+    
+    while (true)
     {
-        for (int j = 1; j <= N; ++j)
-        {
-            cin >> adj[i][j];
-        }
+        cin >> x >> y;
+
+        if (x == -1 && y == -1)
+            break;
+
+        adj[x].push_back(y);
+        adj[y].push_back(x);
     }
 
-    int result[101][101] = {};
+    vector<int> points(n + 1, 2147483647);
 
-    for (int i = 1; i <= N; ++i)
+    for (int i = 1; i <= n; ++i)
     {
-        stack<int> stack;
-        vector<bool> visit(N+1);
+        queue<int> queue;
+        vector<int> weight(n + 1, -1);
 
-        stack.push(i);
+        queue.push(i);
+        weight[i] = 0;
 
-        while (stack.empty() == false)
+        while (queue.empty() == false)
         {
-            int cur = stack.top();
-            stack.pop();
+            int cur = queue.front();
+            queue.pop();
 
-            for (int j = 1; j <= N; ++j)
+            for (int now : adj[cur])
             {
-                if (adj[cur][j] == 1 && visit[j] == false)
+                if (weight[now] == -1)
                 {
-                    stack.push(j);
-                    visit[j] = true;
-                    result[i][j] = 1;
+                    weight[now] = weight[cur] + 1;
+                    queue.push(now);
                 }
             }
         }
+
+        points[i] = *max_element(weight.begin(), weight.end());
     }
 
-    for (int i = 1; i <= N; ++i)
+    int r1 = *min_element(points.begin(), points.end());
+
+    vector<int> candidate;
+
+    for (int i = 1; i <= n; ++i)
     {
-        for (int j = 1; j <= N; ++j)
-        {
-            cout << result[i][j] << " ";
-        }
-        cout << "\n";
+        if (r1 == points[i])
+            candidate.push_back(i);
+    }
+    
+    cout << r1 << " " << (int)candidate.size() << "\n";
+    
+    for (int i : candidate)
+    {
+        cout << i << " ";
     }
 
     return 0;
