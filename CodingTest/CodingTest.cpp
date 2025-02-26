@@ -1,6 +1,6 @@
 ﻿#include <iostream>
 #include <vector>
-#include <queue>
+#include <stack>
 
 using namespace std;
 
@@ -9,48 +9,53 @@ int main()
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int n, m, a, b;
+    int N;
+    cin >> N;
 
-    cin >> n >> m;
+    int adj[101][101] = {};
 
-    vector<vector<int>> graph(n+1);
-
-    for (int i = 0; i < m; ++i)
+    for (int i = 1; i <= N; ++i)
     {
-        cin >> a >> b;
-
-        graph[a].push_back(b);
-        graph[b].push_back(a);
+        for (int j = 1; j <= N; ++j)
+        {
+            cin >> adj[i][j];
+        }
     }
 
-    int result = 0;
+    int result[101][101] = {};
 
-    queue<int> queue;
-    vector<int> visit(n + 1, -1);
-
-    queue.push(1);
-    visit[1] = 0;
-
-    while (queue.empty() == false)
+    for (int i = 1; i <= N; ++i)
     {
-        int cur = queue.front();
-        queue.pop();
+        stack<int> stack;
+        vector<bool> visit(N+1);
 
-        for (int i : graph[cur])
+        stack.push(i);
+
+        while (stack.empty() == false)
         {
-            if (visit[i] == -1)
+            int cur = stack.top();
+            stack.pop();
+
+            for (int j = 1; j <= N; ++j)
             {
-                if (visit[cur] <= 1)
+                if (adj[cur][j] == 1 && visit[j] == false)
                 {
-                    visit[i] = visit[cur] + 1;
-                    queue.push(i);
-                    ++result;
+                    stack.push(j);
+                    visit[j] = true;
+                    result[i][j] = 1;
                 }
             }
         }
     }
 
-    cout << result;
+    for (int i = 1; i <= N; ++i)
+    {
+        for (int j = 1; j <= N; ++j)
+        {
+            cout << result[i][j] << " ";
+        }
+        cout << "\n";
+    }
 
     return 0;
 } 
