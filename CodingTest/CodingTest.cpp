@@ -9,42 +9,43 @@ int main()
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int v, e;
+    int n, m, a, b;
 
-    cin >> v >> e;
+    cin >> n >> m;
 
-    vector<vector<int>> graph(v + 1);
-    
-    int x, y;
+    vector<vector<int>> graph(n+1);
 
-    for (int i = 0; i < e; ++i)
+    for (int i = 0; i < m; ++i)
     {
-        cin >> x >> y;
-        
-        graph[x].push_back(y);
-        graph[y].push_back(x);
+        cin >> a >> b;
+
+        graph[a].push_back(b);
+        graph[b].push_back(a);
     }
 
     int result = 0;
 
-    vector<bool> visit(v + 1, false);
     queue<int> queue;
+    vector<int> visit(n + 1, -1);
 
-    visit[1] = true;
     queue.push(1);
+    visit[1] = 0;
 
     while (queue.empty() == false)
     {
-        int now = queue.front();
+        int cur = queue.front();
         queue.pop();
 
-        for (int i : graph[now])
+        for (int i : graph[cur])
         {
-            if (visit[i] == false)
+            if (visit[i] == -1)
             {
-                visit[i] = true;
-                queue.push(i);
-                result += 1;
+                if (visit[cur] <= 1)
+                {
+                    visit[i] = visit[cur] + 1;
+                    queue.push(i);
+                    ++result;
+                }
             }
         }
     }
