@@ -1,78 +1,65 @@
 ﻿#include <iostream>
 #include <vector>
 #include <queue>
-#include <algorithm>
 
 using namespace std;
 
-int k, v, e;
-int gr[20001] = {};
-vector<int> adj[20001];
+int N, M, x, y;
 
-bool solve()
+bool solve(int st, vector<vector<int>>& adj)
 {
-    fill(gr, gr + v + 1, -1);
+    vector<bool> visit(N + 1, false);
+    queue<int> q;
 
-    for (int i = 1; i <= v; ++i)
+    q.push(st);
+    visit[st] = true;
+
+    int count = 0;
+    while (q.empty() == false)
     {
-        if (gr[i] != -1)
-            continue;
+        int cur = q.front();
+        q.pop();
 
-        queue<int> q;
-
-        q.push(i);
-        gr[i] = 0;
-
-        while (q.empty() == false)
+        for (int next : adj[cur])
         {
-            int cur = q.front();
-            q.pop();
-
-            for (int next : adj[cur])
-            {
-                if (gr[next] != -1)
-                {
-                    if (gr[next] == gr[cur])
-                        return false;
-                    else continue;
-                }
-                gr[next] = (gr[cur] + 1) % 2;
-                q.push(next);
-            }
+            if (visit[next] == true)
+                continue;
+            q.push(next);
+            visit[next] = true;
+            ++count;
         }
     }
 
-    return true;
+    return count >= (N + 1) / 2;
 }
+
 
 int main()
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    cin >> k;
-    while (k--)
+    cin >> N >> M;
+
+    vector<vector<int>> heavy(N + 1);
+    vector<vector<int>> light(N + 1);
+
+    while (M--)
     {
-        cin >> v >> e;
+        cin >> x >> y;
 
-        for (int i = 1; i <= v; ++i)
-        {
-            adj[i].clear();
-        }
-
-        int i, j;
-        while (e--)
-        {
-            cin >> i >> j;
-            adj[i].push_back(j);
-            adj[j].push_back(i);
-        }
-
-        if (solve() == true)
-            cout << "YES\n";
-        else
-            cout << "NO\n";
+        heavy[x].push_back(y);
+        light[y].push_back(x);
     }
 
+    int result = 0;
+
+    for (int i = 1; i <= N; ++i)
+    {
+        result += (solve(i, heavy) || solve(i, light));
+    }
+
+    cout << result;
+    
     return 0;
 } 
