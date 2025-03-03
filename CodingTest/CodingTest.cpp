@@ -1,96 +1,80 @@
 ﻿#include <iostream>
 #include <vector>
-#include <queue>
-#include <set>
+#include <stack>
 
 using namespace std;
 
+int n, m, x, y;
+vector<vector<int>> adj;
+vector<bool> visit;
+stack<int> s;
+bool isCycle;
+
+void dfs(int cur, int parent)
+{
+    for (int next : adj[cur])
+    {
+        if (next == parent)
+            continue;
+        if (visit[next] == true)
+        {
+            isCycle = true;
+            continue;
+        }
+        visit[next] = true;
+        dfs(next, cur);
+    }
+}
 
 int main()
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int N, M;
-    cin >> N >> M;
-
-    vector<vector<int>> member(N + 1);
-
-    // 파티에서 보는 사람들을 모두 간선으로 이어주고, 진실을 아는 자를 BFS를 해야 함. 그 다음 다시 파티를 확인해야 함.
-    int tn, t;
-    cin >> tn;
-    vector<int> know;
-    while (tn--)
+    int caseCount = 0;
+    while (true)
     {
-        cin >> t;
-        know.push_back(t);
-    }
+        ++caseCount;
+        cin >> n >> m;
 
-    vector<vector<int>> partyMember(M);
+        if (n == 0 && m == 0)
+            break;
 
-    int pn, p;
-    for (int i = 0; i < M; ++i)
-    {
-        cin >> pn;
+        adj = vector<vector<int>>(n + 1);
+        visit = vector<bool>(n + 1, false);
 
-        while (pn--)
+        while (m--)
         {
-            cin >> p;
-            for (int j : partyMember[i])
-            {
-                member[j].push_back(p);
-                member[p].push_back(j);
-            }
-            partyMember[i].push_back(p);
+            cin >> x >> y;
+
+            adj[x].push_back(y);
+            adj[y].push_back(x);
         }
-    }
 
-    queue<int> q;
-    vector<bool> visit(N + 1, false);
+        int T = 0;
 
-    for (int K : know)
-    {
-        q.push(K);
-        visit[K] = true;
-
-        while (q.empty() == false)
+        for (int i = 1; i <= n; ++i)
         {
-            int cur = q.front();
-            q.pop();
-
-            for (int next : member[cur])
+            if (visit[i] == false)
             {
-                if (visit[next] == true)
-                    continue;
-                q.push(next);
-                visit[next] = true;
+                isCycle = false;
+                
+                visit[i] = true;
+                dfs(i, -1);
+
+                if (isCycle == false)
+                    ++T;
             }
         }
-    }
 
-    set<int> haveToAvoid;
-    for (int i = 1; i <= N; ++i)
-    {
-        if (visit[i] == true)
-        {
-            haveToAvoid.insert(i);
-        }
+        cout << "Case " << caseCount << ": ";
+        if (T == 0)
+            cout << "No trees." << '\n';
+        else if (T == 1)
+            cout << "There is one tree." << '\n';
+        else
+            cout << "A forest of " << T << " trees." << '\n';
     }
-
-    int result = M;
-    for (int i = 0; i < M; ++i)
-    {
-        for (int j : partyMember[i])
-        {
-            if (haveToAvoid.find(j) != haveToAvoid.end())
-            {
-                --result;
-                break;
-            }
-        }
-    }
-
-    cout << result;
 
     return 0;
-} 
+}
