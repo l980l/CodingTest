@@ -1,79 +1,64 @@
 ﻿#include <iostream>
 #include <vector>
-#include <stack>
+#include <queue>
 
 using namespace std;
-
-int n, m, x, y;
-vector<vector<int>> adj;
-vector<bool> visit;
-stack<int> s;
-bool isCycle;
-
-void dfs(int cur, int parent)
-{
-    for (int next : adj[cur])
-    {
-        if (next == parent)
-            continue;
-        if (visit[next] == true)
-        {
-            isCycle = true;
-            continue;
-        }
-        visit[next] = true;
-        dfs(next, cur);
-    }
-}
 
 int main()
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int caseCount = 0;
-    while (true)
+    int N, M;;
+
+    cin >> N >> M;
+
+    // 거리
+    vector<vector<int>> distance(N + 1, vector<int>(N+1, 0));
+    vector<vector<int>> adj(N + 1);
+
+    int u, v, w;
+    for (int i = 1; i < N; ++i)
     {
-        ++caseCount;
-        cin >> n >> m;
+        cin >> u >> v >> w;
 
-        if (n == 0 && m == 0)
-            break;
+        distance[u][v] = w;
+        distance[v][u] = w;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
 
-        adj = vector<vector<int>>(n + 1);
-        visit = vector<bool>(n + 1, false);
+    while (M--)
+    {
+        cin >> u >> v;
 
-        while (m--)
+        vector<bool> visit(N + 1);
+        queue<int> q;
+        q.push(u);
+        visit[u] = true;
+
+        while (q.empty() == false)
         {
-            cin >> x >> y;
-
-            adj[x].push_back(y);
-            adj[y].push_back(x);
-        }
-
-        int T = 0;
-
-        for (int i = 1; i <= n; ++i)
-        {
-            if (visit[i] == false)
+            int cur = q.front();
+            q.pop();
+            
+            if (cur == v)
             {
-                isCycle = false;
-                
-                visit[i] = true;
-                dfs(i, -1);
+                cout << distance[u][v] << "\n";
+                break;
+            }
 
-                if (isCycle == false)
-                    ++T;
+            for (int next : adj[cur])
+            {
+                if (visit[next] == true)
+                    continue;
+
+                visit[next] = true;
+                distance[u][next] = distance[u][cur] + distance[cur][next];
+                distance[next][u] = distance[u][cur] + distance[cur][next];
+                q.push(next);
             }
         }
-
-        cout << "Case " << caseCount << ": ";
-        if (T == 0)
-            cout << "No trees." << '\n';
-        else if (T == 1)
-            cout << "There is one tree." << '\n';
-        else
-            cout << "A forest of " << T << " trees." << '\n';
     }
 
     return 0;
