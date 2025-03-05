@@ -4,52 +4,83 @@
 
 using namespace std;
 
-int n, m;
-vector<vector<int>> child;
-vector<int> score;
+vector<int> lc;
+vector<int> rc;
+int N, colno, root;
 
-void dfs(int cur)
+vector<pair<int, int>> colLR;
+void inorder(int curr, int d) 
 {
-    for (int next : child[cur])
-    {
-        score[next] += score[cur];
-        dfs(next);
-    }
+    if (curr == -1) 
+        return;
+
+    inorder(lc[curr], d + 1);
+    colno++;
+
+    int& lcol = colLR[d].first;
+    int& rcol = colLR[d].second;
+
+    if (!lcol || colno < lcol) 
+        lcol = colno;
+    if (!rcol || rcol < colno) 
+        rcol = colno;
+
+    inorder(rc[curr], d + 1);
 }
 
-int main()
+int main(void) 
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    cin >> n >> m;
+    cin >> N;
 
-    child = vector<vector<int>>(n + 1);
-    score = vector<int>(n + 1, 0);
-    for (int i = 1; i <= n; ++i)
+    lc = vector<int>(N + 1);
+    rc = vector<int>(N + 1);
+    colLR = vector<pair<int, int>>(N + 1);
+    vector<bool> isRoot(N + 1, true);
+
+    for (int i = 0; i < N; i++) 
     {
-        int temp;
-        cin >> temp;
+        int p, l, r;
+        cin >> p >> l >> r;
+        lc[p] = l;
+        rc[p] = r;
 
-        if (temp == -1)
-            continue;
+        if (l != -1) 
+            isRoot[l] = false;
 
-        child[temp].push_back(i);
+        if (r != -1) 
+            isRoot[r] = false;
     }
 
-    int i, w;
-    while (m--)
+    for (int i = 1; i <= N; i++)
     {
-        cin >> i >> w;
-        score[i] += w;
+        if (isRoot[i])
+        {
+            root = i;
+            break;
+        }
     }
 
-    dfs(1);
+    int mxWidth = 0, mxDepth = 0;
+    inorder(root, 0);
 
-    for (int l = 1; l <= n; ++l)
+    for (int d = 0; d < N; d++) 
     {
-        cout << score[l] << " ";
-    }
+        int lcol = colLR[d].first;
+        int rcol = colLR[d].second;
 
-    return 0;
+        if (lcol + rcol == 0) 
+            break;
+
+        int width = rcol - lcol + 1;
+
+        if (mxWidth < width) 
+        {
+            mxWidth = width;
+            mxDepth = d;
+        }
+    }
+    cout << mxDepth + 1 << ' ' << mxWidth;
 }
