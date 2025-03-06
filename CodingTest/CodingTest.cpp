@@ -4,83 +4,68 @@
 
 using namespace std;
 
-vector<int> lc;
-vector<int> rc;
-int N, colno, root;
-
-vector<pair<int, int>> colLR;
-void inorder(int curr, int d) 
-{
-    if (curr == -1) 
-        return;
-
-    inorder(lc[curr], d + 1);
-    colno++;
-
-    int& lcol = colLR[d].first;
-    int& rcol = colLR[d].second;
-
-    if (!lcol || colno < lcol) 
-        lcol = colno;
-    if (!rcol || rcol < colno) 
-        rcol = colno;
-
-    inorder(rc[curr], d + 1);
-}
-
 int main(void) 
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    cin >> N;
+    int N, M;
+    cin >> N >> M;
 
-    lc = vector<int>(N + 1);
-    rc = vector<int>(N + 1);
-    colLR = vector<pair<int, int>>(N + 1);
-    vector<bool> isRoot(N + 1, true);
+    vector<int> result;
+    vector<int> indegree(N + 1, 0);
+    vector<vector<int>> adj(N + 1);
 
-    for (int i = 0; i < N; i++) 
+    int sn, s, prev;
+    for (int i = 0; i < M; ++i)
     {
-        int p, l, r;
-        cin >> p >> l >> r;
-        lc[p] = l;
-        rc[p] = r;
+        prev = 0;
+        cin >> sn;
 
-        if (l != -1) 
-            isRoot[l] = false;
-
-        if (r != -1) 
-            isRoot[r] = false;
-    }
-
-    for (int i = 1; i <= N; i++)
-    {
-        if (isRoot[i])
+        while (sn--)
         {
-            root = i;
-            break;
+            cin >> s;
+
+            if (prev != 0)
+            {
+                adj[prev].push_back(s);
+                ++indegree[s];
+            }
+
+            prev = s;
         }
     }
 
-    int mxWidth = 0, mxDepth = 0;
-    inorder(root, 0);
-
-    for (int d = 0; d < N; d++) 
+    queue<int> q;
+    for (int i = 1; i <= N; ++i)
     {
-        int lcol = colLR[d].first;
-        int rcol = colLR[d].second;
+        if (indegree[i] == 0)
+            q.push(i);
+    }
 
-        if (lcol + rcol == 0) 
-            break;
+    while (q.empty() == false)
+    {
+        int cur = q.front();
+        q.pop();
+        result.push_back(cur);
 
-        int width = rcol - lcol + 1;
-
-        if (mxWidth < width) 
+        for (int next : adj[cur])
         {
-            mxWidth = width;
-            mxDepth = d;
+            --indegree[next];
+            
+            if (indegree[next] == 0)
+                q.push(next);
         }
     }
-    cout << mxDepth + 1 << ' ' << mxWidth;
+
+    if (result.size() != N)
+        cout << 0;
+
+    else
+    {
+        for (int i : result)
+            cout << i << "\n";
+    }
+
+    return 0;
 }
