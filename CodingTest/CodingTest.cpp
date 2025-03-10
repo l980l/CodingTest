@@ -1,58 +1,74 @@
 ﻿#include <iostream>
 #include <vector>
-#include <queue>
-#include <unordered_map>
 #include <algorithm>
+#include <queue>
 
 using namespace std;
+
+vector<int> p;
+
+int find(int x)
+{
+    if (p[x] < 0)
+        return x;
+
+    return p[x] = find(p[x]);
+}
+
+bool uni(int u, int v)
+{
+    u = find(u);
+    v = find(v);
+
+    if (u == v)
+        return false;
+    
+    p[v] = u;
+    return true;
+}
 
 int main(void) 
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int N, M;
-    cin >> N >> M;
+    int T, N, C;
 
-    vector<int> indegree(N + 1, 0);
-    vector<vector<int>> adj(N + 1);
+    cin >> N;
+    p = vector<int>(N, -1);
+    vector<tuple<int, int, int>> e;
 
-    int A, B;
-    while (M--)
+    for (int i = 0; i < N; ++i)
     {
-        cin >> A >> B;
-        adj[A].push_back(B);
-        ++indegree[B];
-    }
-
-    vector<int> result;
-    priority_queue<int, vector<int>, greater<int>> pq;
-
-    for (int i = 1; i <= N; ++i)
-    {
-        if (indegree[i] == 0)
-            pq.push(i);
-    }
-
-    while (pq.empty() == false)
-    {
-        int cur = pq.top();
-        result.push_back(cur);
-        pq.pop();
-
-        for (int next : adj[cur])
+        for (int j = 0; j < N; ++j)
         {
-            --indegree[next];
-            
-            if (indegree[next] == 0)
-                pq.push(next);
+            cin >> C;
+         
+            if (j >= i + 1)
+                e.push_back({ C,i,j });
         }
     }
 
-    for (int x : result)
+    sort(e.begin(), e.end());
+
+    int cnt = 0;
+    long long result = 0;
+
+    for (auto t : e)
     {
-        cout << x << " ";
+        int c, x, y;
+        tie(c, x, y) = t;
+        if (uni(x, y) == false)
+            continue;
+
+        result += c;
+        ++cnt;
+
+        if (cnt == N - 1)
+            break;
     }
+
+    cout << result;
 
     return 0;
 }
