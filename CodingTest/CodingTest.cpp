@@ -33,30 +33,50 @@ int main(void)
     int N, M, A, B, C;
     cin >> N >> M;
     
-    if (N == 2)
-    {
-        cout << 0;
-        return 0;
-    }
-
-    p = vector<int>(N, -1);
     vector<tuple<int, int, int>> e;
 
-    for (int i = 0; i < M; ++i)
+    for (int i = 0; i <= M; ++i)
     {
         cin >> A >> B >> C;
-        e.push_back({ C, A, B });
+
+        if (C == 0)
+            C = 1;
+        else
+            C = 0;
+
+        e.push_back({ C,A,B });
     }
 
+    // min
     sort(e.begin(), e.end());
-
-    int result = 0;
     int cnt = 0;
+    int minSum = 0;
+    p = vector<int>(N + 1, -1);
 
-    for (int i = 0; i < M; ++i)
+    for (int i = 0; i <= M; ++i)
     {
         auto t = e[i];
+        int c, a, b;
+        tie(c, a, b) = t;
 
+        if (uni(a, b) == false)
+            continue;
+        
+        ++cnt;
+        minSum += c;
+        
+        if (cnt == N)
+            break;
+    }
+
+    // max
+    cnt = 0;
+    int maxSum = 0;
+    p = vector<int>(N + 1, -1);
+
+    for (int i = M; i >= 0; --i)
+    {
+        auto t = e[i];
         int c, a, b;
         tie(c, a, b) = t;
 
@@ -64,13 +84,13 @@ int main(void)
             continue;
 
         ++cnt;
-        result += c;
+        maxSum += c;
 
-        if (cnt == N - 2)
+        if (cnt == N)
             break;
     }
 
-    cout << result;
+    cout << maxSum * maxSum - minSum * minSum;
 
     return 0;
 }
