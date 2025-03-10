@@ -1,7 +1,6 @@
 ﻿#include <iostream>
 #include <vector>
 #include <algorithm>
-#include <queue>
 
 using namespace std;
 
@@ -11,7 +10,6 @@ int find(int x)
 {
     if (p[x] < 0)
         return x;
-
     return p[x] = find(p[x]);
 }
 
@@ -22,49 +20,53 @@ bool uni(int u, int v)
 
     if (u == v)
         return false;
-    
+
     p[v] = u;
     return true;
 }
 
-int main(void) 
+int main(void)
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int T, N, C;
+    int N, M, A, B, C;
+    cin >> N >> M;
+    
+    if (N == 2)
+    {
+        cout << 0;
+        return 0;
+    }
 
-    cin >> N;
     p = vector<int>(N, -1);
     vector<tuple<int, int, int>> e;
 
-    for (int i = 0; i < N; ++i)
+    for (int i = 0; i < M; ++i)
     {
-        for (int j = 0; j < N; ++j)
-        {
-            cin >> C;
-         
-            if (j >= i + 1)
-                e.push_back({ C,i,j });
-        }
+        cin >> A >> B >> C;
+        e.push_back({ C, A, B });
     }
 
     sort(e.begin(), e.end());
 
+    int result = 0;
     int cnt = 0;
-    long long result = 0;
 
-    for (auto t : e)
+    for (int i = 0; i < M; ++i)
     {
-        int c, x, y;
-        tie(c, x, y) = t;
-        if (uni(x, y) == false)
+        auto t = e[i];
+
+        int c, a, b;
+        tie(c, a, b) = t;
+
+        if (uni(a, b) == false)
             continue;
 
-        result += c;
         ++cnt;
+        result += c;
 
-        if (cnt == N - 1)
+        if (cnt == N - 2)
             break;
     }
 
