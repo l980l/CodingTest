@@ -1,27 +1,31 @@
 ﻿#include <iostream>
 #include <vector>
 #include <algorithm>
+#include <cmath>
 
 using namespace std;
 
-vector<int> p;
+#define x first
+#define y second
 
-int find(int x)
+vector<int> parent;
+
+int find(int a)
 {
-    if (p[x] < 0)
-        return x;
-    return p[x] = find(p[x]);
+    if (parent[a] < 0)
+        return a;
+    return parent[a] = find(parent[a]);
 }
 
-bool uni(int u, int v)
+bool uni(int a, int b)
 {
-    u = find(u);
-    v = find(v);
+    a = find(a);
+    b = find(b);
 
-    if (u == v)
+    if (a == b)
         return false;
 
-    p[v] = u;
+    parent[b] = a;
     return true;
 }
 
@@ -30,67 +34,59 @@ int main(void)
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int N, M, A, B, C;
+    int N, M;
     cin >> N >> M;
-    
-    vector<tuple<int, int, int>> e;
 
-    for (int i = 0; i <= M; ++i)
+    vector<pair<int, int>> G(N + 1);
+    vector<tuple<long long, int, int>> e;
+
+    for (int i = 1; i <= N; ++i)
     {
-        cin >> A >> B >> C;
+        cin >> G[i].x >> G[i].y;
+        for (int j = 1; j < i; ++j)
+        {
+            long long Xdis = G[i].x - G[j].x;
+            long long Ydis = G[i].y - G[j].y;
+            long long distance = Xdis * Xdis + Ydis * Ydis;
 
-        if (C == 0)
-            C = 1;
-        else
-            C = 0;
-
-        e.push_back({ C,A,B });
+            e.push_back({ distance, i, j });
+        }
     }
 
-    // min
+    for (int i = 0; i < M; ++i)
+    {
+        int tmp1, tmp2;
+
+        cin >> tmp1 >> tmp2;
+        e.push_back({ 0, tmp1, tmp2 });
+    }
+
+    parent = vector<int>(N + 1, -1);
+
     sort(e.begin(), e.end());
+
     int cnt = 0;
-    int minSum = 0;
-    p = vector<int>(N + 1, -1);
+    double result = 0;
 
-    for (int i = 0; i <= M; ++i)
+    for (const auto& p : e)
     {
-        auto t = e[i];
-        int c, a, b;
-        tie(c, a, b) = t;
+        long long c;
+        int u, v;
+        tie(c, u, v) = p;
 
-        if (uni(a, b) == false)
-            continue;
-        
-        ++cnt;
-        minSum += c;
-        
-        if (cnt == N)
-            break;
-    }
-
-    // max
-    cnt = 0;
-    int maxSum = 0;
-    p = vector<int>(N + 1, -1);
-
-    for (int i = M; i >= 0; --i)
-    {
-        auto t = e[i];
-        int c, a, b;
-        tie(c, a, b) = t;
-
-        if (uni(a, b) == false)
+        if (uni(u, v) == false)
             continue;
 
         ++cnt;
-        maxSum += c;
+        result += sqrt(c);
 
-        if (cnt == N)
+        if (cnt == N - 1)
             break;
     }
 
-    cout << maxSum * maxSum - minSum * minSum;
+    cout << fixed;
+    cout.precision(2);
+    cout << result;
 
     return 0;
 }
