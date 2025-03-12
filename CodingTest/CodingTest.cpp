@@ -4,71 +4,50 @@
 
 using namespace std;
 
-vector<int> p;
-
-int find(int x)
-{
-    if (p[x] < 0)
-        return x;
-    return p[x] = find(p[x]);
-}
-
-bool uni(int a, int b)
-{
-    a = find(a);
-    b = find(b);
-
-    if (a == b)
-        return false;
-
-    p[b] = a;
-    return true;
-}
-
 int main(void)
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int N, M, K, u, v, w;
-    cin >> N >> M >> K;
+    int n, m, r, a, b, l, result = 0;
+    cin >> n >> m >> r;
 
-    p = vector<int>(N + 1, -1);
-    vector<tuple<int, int, int>> e;
-
-    int cnt = 0;
-
-    int prev;
-    cin >> prev;
-    for (int i = 1; i < K; ++i)
+    vector<int> itemCount(n);
+    vector<vector<int>> board(n, vector<int>(n, 0x3f3f3f3f));
+    
+    for (int i = 0; i < n; ++i)
     {
-        cin >> u;
-        uni(prev, u);
-        ++cnt;
-        prev = u;
+        cin >> itemCount[i];
     }
 
-    for (int i = 0; i < M; ++i)
+    for (int i = 0; i < r; ++i)
     {
-        cin >> u >> v >> w;
-        e.push_back({ w,u,v });
+        cin >> a >> b >> l;
+
+        board[a - 1][b - 1] = min(board[a - 1][b - 1], l);
+        board[b - 1][a - 1] = min(board[b - 1][a - 1], l);
     }
 
-    sort(e.begin(), e.end());
-
-    int result = 0;
-
-    for (auto cur : e)
+    for (int k = 0; k < n; ++k)
     {
-        tie(w, u, v) = cur;
+        for (int i = 0; i < n; ++i)
+        {
+            for (int j = 0; j < n; ++j)
+            {
+                board[i][j] = min(board[i][k] + board[k][j], board[i][j]);
+            }
+        }
+    }
 
-        if (uni(u, v) == false)
-            continue;
-
-        result += w;
-        ++cnt;
-        if (cnt == N - 1)
-            break;
+    for (int i = 0; i < n; ++i)
+    {
+        int now = 0;
+        for (int j = 0; j < n; ++j)
+        {
+            if (board[i][j] <= m || i == j)
+                now += itemCount[j];
+        }
+        result = max(result, now);
     }
 
     cout << result;
