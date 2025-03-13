@@ -9,48 +9,73 @@ int main(void)
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int n, m, r, a, b, l, result = 0;
-    cin >> n >> m >> r;
+    int N, M;
+    cin >> N >> M;
 
-    vector<int> itemCount(n);
-    vector<vector<int>> board(n, vector<int>(n, 0x3f3f3f3f));
-    
-    for (int i = 0; i < n; ++i)
+    vector<vector<int>> d(N + 1, vector<int>(N + 1, 0x3f3f3f3f));
+    for (int i = 0; i <= N; ++i)
     {
-        cin >> itemCount[i];
+        d[i][i] = 0;
     }
 
-    for (int i = 0; i < r; ++i)
+    int A, B, T;
+    while (M--)
     {
-        cin >> a >> b >> l;
-
-        board[a - 1][b - 1] = min(board[a - 1][b - 1], l);
-        board[b - 1][a - 1] = min(board[b - 1][a - 1], l);
+        cin >> A >> B >> T;
+        d[A][B] = min(d[A][B], T);
     }
 
-    for (int k = 0; k < n; ++k)
+    int K;
+    cin >> K;
+
+    vector<int> f(K);
+    for (int i = 0; i < K; ++i)
     {
-        for (int i = 0; i < n; ++i)
+        cin >> f[i];
+    }
+
+    for (int k = 1; k <= N; ++k)
+    {
+        for (int i = 1; i <= N; ++i)
         {
-            for (int j = 0; j < n; ++j)
+            for (int j = 1; j <= N; ++j)
             {
-                board[i][j] = min(board[i][k] + board[k][j], board[i][j]);
+                d[i][j] = min(d[i][j], d[i][k] + d[k][j]);
             }
         }
     }
 
-    for (int i = 0; i < n; ++i)
+    vector<int> result;
+    int minSum = 0x7f7f7f7f;
+    int nowMax = 0;
+    int now = 0;
+    for (int i = 1; i <= N; ++i)
     {
-        int now = 0;
-        for (int j = 0; j < n; ++j)
+        nowMax = 0;
+        for (int cur : f)
         {
-            if (board[i][j] <= m || i == j)
-                now += itemCount[j];
+            now = 0;
+            now += d[cur][i];
+            now += d[i][cur];
+            
+            nowMax = max(nowMax, now);
         }
-        result = max(result, now);
+
+        if (minSum == nowMax)
+            result.emplace_back(i);
+
+        else if (minSum > nowMax)
+        {
+            minSum = nowMax;
+            result.clear();
+            result.emplace_back(i);
+        }
     }
 
-    cout << result;
+    sort(result.begin(), result.end());
+
+    for (int city : result)
+        cout << city << " ";
 
     return 0;
 }
