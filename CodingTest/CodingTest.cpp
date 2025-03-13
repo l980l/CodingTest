@@ -9,73 +9,50 @@ int main(void)
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int N, M;
-    cin >> N >> M;
+    int V, E;
+    cin >> V >> E;
 
-    vector<vector<int>> d(N + 1, vector<int>(N + 1, 0x3f3f3f3f));
-    for (int i = 0; i <= N; ++i)
+    vector<vector<int>> d(V + 1, vector<int>(V + 1, 0x3f3f3f3f));
+
+    int a, b, c;
+    for (int i = 0; i < E; ++i)
+    {
+        cin >> a >> b >> c;
+        d[a][b] = c;
+    }
+
+    for (int i = 0; i <= V; ++i)
     {
         d[i][i] = 0;
     }
 
-    int A, B, T;
-    while (M--)
+    for (int k = 1; k <= V; ++k)
     {
-        cin >> A >> B >> T;
-        d[A][B] = min(d[A][B], T);
-    }
-
-    int K;
-    cin >> K;
-
-    vector<int> f(K);
-    for (int i = 0; i < K; ++i)
-    {
-        cin >> f[i];
-    }
-
-    for (int k = 1; k <= N; ++k)
-    {
-        for (int i = 1; i <= N; ++i)
+        for (int i = 1; i <= V; ++i)
         {
-            for (int j = 1; j <= N; ++j)
+            for (int j = 1; j <= V; ++j)
             {
                 d[i][j] = min(d[i][j], d[i][k] + d[k][j]);
             }
         }
     }
 
-    vector<int> result;
-    int minSum = 0x7f7f7f7f;
-    int nowMax = 0;
-    int now = 0;
-    for (int i = 1; i <= N; ++i)
+    int minC = 0x7f7f7f7f;
+
+    for (int i = 1; i <= V; ++i)
     {
-        nowMax = 0;
-        for (int cur : f)
+        for (int j = 1; j <= V; ++j)
         {
-            now = 0;
-            now += d[cur][i];
-            now += d[i][cur];
-            
-            nowMax = max(nowMax, now);
-        }
-
-        if (minSum == nowMax)
-            result.emplace_back(i);
-
-        else if (minSum > nowMax)
-        {
-            minSum = nowMax;
-            result.clear();
-            result.emplace_back(i);
+            if (d[i][j] == 0x3f3f3f3f || d[j][i] == 0x3f3f3f3f || i == j)
+                continue;
+            minC = min(minC, d[i][j] + d[j][i]);
         }
     }
 
-    sort(result.begin(), result.end());
+    if (minC == 0x7f7f7f7f)
+        minC = -1;
 
-    for (int city : result)
-        cout << city << " ";
+    cout << minC;
 
     return 0;
 }
