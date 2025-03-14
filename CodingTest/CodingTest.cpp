@@ -9,50 +9,42 @@ int main(void)
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int V, E;
-    cin >> V >> E;
+    int n, m;
+    cin >> n >> m;
 
-    vector<vector<int>> d(V + 1, vector<int>(V + 1, 0x3f3f3f3f));
-
-    int a, b, c;
-    for (int i = 0; i < E; ++i)
-    {
-        cin >> a >> b >> c;
-        d[a][b] = c;
-    }
-
-    for (int i = 0; i <= V; ++i)
+    vector<vector<int>> d(n + 1, vector<int>(n + 1, 0x3f3f3f3f));
+    for (int i = 0; i <= n; ++i)
     {
         d[i][i] = 0;
     }
 
-    for (int k = 1; k <= V; ++k)
+    int u, v, b;
+
+    for (int i = 0; i < m; ++i)
     {
-        for (int i = 1; i <= V; ++i)
+        cin >> u >> v >> b;
+        
+        d[u][v] = 0;
+        d[v][u] = b == 0 ? 1 : 0;
+    }
+
+    for (int k = 1; k <= n; ++k)
+    {
+        for (int i = 1; i <= n; ++i)
         {
-            for (int j = 1; j <= V; ++j)
+            for (int j = 1; j <= n; ++j)
             {
                 d[i][j] = min(d[i][j], d[i][k] + d[k][j]);
             }
         }
     }
 
-    int minC = 0x7f7f7f7f;
-
-    for (int i = 1; i <= V; ++i)
+    cin >> m;
+    while (m--)
     {
-        for (int j = 1; j <= V; ++j)
-        {
-            if (d[i][j] == 0x3f3f3f3f || d[j][i] == 0x3f3f3f3f || i == j)
-                continue;
-            minC = min(minC, d[i][j] + d[j][i]);
-        }
+        cin >> u >> v;
+        cout << d[u][v] << "\n";
     }
-
-    if (minC == 0x7f7f7f7f)
-        minC = -1;
-
-    cout << minC;
 
     return 0;
 }
