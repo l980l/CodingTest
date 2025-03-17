@@ -1,6 +1,6 @@
 ﻿#include <iostream>
 #include <vector>
-#include <algorithm>
+#include <queue>
 
 using namespace std;
 
@@ -9,42 +9,85 @@ int main(void)
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int n, m;
-    cin >> n >> m;
+    int N, E;
+    int a, b, c;
+    cin >> N >> E;
 
-    vector<vector<int>> d(n + 1, vector<int>(n + 1, 0x3f3f3f3f));
-    for (int i = 0; i <= n; ++i)
+    vector<vector<pair<int, int>>> adj(N + 1);
+    vector<int> d(N + 1, 0x3f3f3f3f);
+
+    // a b 사이의 최단 경로 구하고, (1-a + b-n)과 (1-b + a-n)를 비교해서 더 낮은 경로를 선택하면 될 듯?
+    while (E--)
     {
-        d[i][i] = 0;
+        cin >> a >> b >> c;
+
+        adj[a].push_back({ c, b });
+        adj[b].push_back({ c, a });
     }
 
-    int u, v, b;
+    cin >> a >> b;
 
-    for (int i = 0; i < m; ++i)
-    {
-        cin >> u >> v >> b;
-        
-        d[u][v] = 0;
-        d[v][u] = b == 0 ? 1 : 0;
-    }
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+    
+    long long abSum = 0;
+    long long baSum = 0;
 
-    for (int k = 1; k <= n; ++k)
+    // a에서 다익스트라
+    d = vector<int>(N + 1, 0x3f3f3f3f);
+    d[a] = 0;
+    pq.push({ 0, a });
+
+    while (pq.empty() == false)
     {
-        for (int i = 1; i <= n; ++i)
+        auto cur = pq.top();
+        pq.pop();
+
+        if (d[cur.second] != cur.first)
+            continue;
+
+        for (auto next : adj[cur.second])
         {
-            for (int j = 1; j <= n; ++j)
-            {
-                d[i][j] = min(d[i][j], d[i][k] + d[k][j]);
-            }
+            if (d[next.second] <= d[cur.second] + next.first)
+                continue;
+            
+            d[next.second] = d[cur.second] + next.first;
+            pq.push({ d[next.second], next.second });
         }
     }
 
-    cin >> m;
-    while (m--)
+    abSum += d[1] + d[b];
+    baSum += d[N];
+
+    // b에서 다익스트라
+    d = vector<int>(N + 1, 0x3f3f3f3f);
+    d[b] = 0;
+    pq.push({ 0, b });
+
+    while (pq.empty() == false)
     {
-        cin >> u >> v;
-        cout << d[u][v] << "\n";
+        auto cur = pq.top();
+        pq.pop();
+
+        if (d[cur.second] != cur.first)
+            continue;
+
+        for (auto next : adj[cur.second])
+        {
+            if (d[next.second] <= d[cur.second] + next.first)
+                continue;
+
+            d[next.second] = d[cur.second] + next.first;
+            pq.push({ d[next.second], next.second });
+        }
     }
+
+    abSum += d[N];
+    baSum += d[1] + d[a];
+
+    if (abSum >= 0x3f3f3f3f && baSum >= 0x3f3f3f3f)
+        cout << -1;
+    else
+        cout << min(abSum, baSum);
 
     return 0;
 }
