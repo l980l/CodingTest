@@ -1,64 +1,64 @@
 ﻿#include <iostream>
 #include <vector>
 #include <queue>
+#include <algorithm>
 
 using namespace std;
-
-int dx[] = { 1, 0, -1, 0 };;
-int dy[] = { 0, -1, 0, 1 };;
 
 int main(void)
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int M, N;
-    cin >> M >> N;
-    vector<vector<int>> board(N);
-
-    for (int i = 0; i < N; ++i)
+    int N, M, K;
+    cin >> N >> M >> K;
+    vector<vector<pair<long long, int>>> adj(N + 1);
+    vector<long long> d(N + 1, 50000000002);
+    while (M--)
     {
-        string temp;
-        cin >> temp;
-
-        for (char c : temp)
-        {
-            int cur = (int)c - '0';
-            board[i].push_back(cur);
-        }
+        int u, v, c;
+        cin >> u >> v >> c;
+        adj[v].push_back({ c,u });
     }
 
-    priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, greater<tuple<int, int, int>>> pq;
-    vector<vector<int>> d(N, vector<int>(M, 0x3f3f3f3f));
-    d[0][0] = 0;
+    vector<int> place;
+    while (K--)
+    {
+        int p;
+        cin >> p;
+        place.push_back(p);
+        d[p] = 0;
+    }
 
-    pq.push({ 0, 0, 0 });
-    int c, x, y;
+    priority_queue <pair<long long, int>, vector<pair<long long, int>>, greater<pair<long long, int>>> pq;
+    for (int p : place)
+    {
+        pq.push({ 0, p });
+    }
+
     while (pq.empty() == false)
     {
-        tie(c, x, y) = pq.top();
+        long long c = pq.top().first;
+        int cur = pq.top().second;
         pq.pop();
 
-        if (c != d[x][y])
+        if (d[cur] != c)
             continue;
 
-        for (int i = 0; i < 4; ++i)
+        for (auto next : adj[cur])
         {
-            int nx = x + dx[i];
-            int ny = y + dy[i];
-
-            if (nx < 0 || nx >= N || ny < 0 || ny >= M)
+            if (d[next.second] <= c + next.first)
                 continue;
 
-            if (d[nx][ny] <= d[x][y] + board[nx][ny])
-                continue;
-
-            d[nx][ny] = d[x][y] + board[nx][ny];
-            pq.push({ d[nx][ny], nx, ny });
+            d[next.second] = c + next.first;
+            pq.push({ d[next.second], next.second });
         }
     }
 
-    cout << d[N - 1][M - 1];
+    long long maxCost = *max_element(d.begin() + 1, d.end());
+    int index = max_element(d.begin() + 1, d.end()) - d.begin();
+    cout << index << "\n";
+    cout << maxCost;
 
     return 0;
 }
