@@ -4,90 +4,61 @@
 
 using namespace std;
 
+int dx[] = { 1, 0, -1, 0 };;
+int dy[] = { 0, -1, 0, 1 };;
+
 int main(void)
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int N, E;
-    int a, b, c;
-    cin >> N >> E;
+    int M, N;
+    cin >> M >> N;
+    vector<vector<int>> board(N);
 
-    vector<vector<pair<int, int>>> adj(N + 1);
-    vector<int> d(N + 1, 0x3f3f3f3f);
-
-    // a b 사이의 최단 경로 구하고, (1-a + b-n)과 (1-b + a-n)를 비교해서 더 낮은 경로를 선택하면 될 듯?
-    while (E--)
+    for (int i = 0; i < N; ++i)
     {
-        cin >> a >> b >> c;
+        string temp;
+        cin >> temp;
 
-        adj[a].push_back({ c, b });
-        adj[b].push_back({ c, a });
-    }
-
-    cin >> a >> b;
-
-    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
-    
-    long long abSum = 0;
-    long long baSum = 0;
-
-    // a에서 다익스트라
-    d = vector<int>(N + 1, 0x3f3f3f3f);
-    d[a] = 0;
-    pq.push({ 0, a });
-
-    while (pq.empty() == false)
-    {
-        auto cur = pq.top();
-        pq.pop();
-
-        if (d[cur.second] != cur.first)
-            continue;
-
-        for (auto next : adj[cur.second])
+        for (char c : temp)
         {
-            if (d[next.second] <= d[cur.second] + next.first)
-                continue;
-            
-            d[next.second] = d[cur.second] + next.first;
-            pq.push({ d[next.second], next.second });
+            int cur = (int)c - '0';
+            board[i].push_back(cur);
         }
     }
 
-    abSum += d[1] + d[b];
-    baSum += d[N];
+    priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, greater<tuple<int, int, int>>> pq;
+    vector<vector<int>> d(N, vector<int>(M, 0x3f3f3f3f));
+    d[0][0] = 0;
 
-    // b에서 다익스트라
-    d = vector<int>(N + 1, 0x3f3f3f3f);
-    d[b] = 0;
-    pq.push({ 0, b });
-
+    pq.push({ 0, 0, 0 });
+    int c, x, y;
     while (pq.empty() == false)
     {
-        auto cur = pq.top();
+        tie(c, x, y) = pq.top();
         pq.pop();
 
-        if (d[cur.second] != cur.first)
+        if (c != d[x][y])
             continue;
 
-        for (auto next : adj[cur.second])
+        for (int i = 0; i < 4; ++i)
         {
-            if (d[next.second] <= d[cur.second] + next.first)
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+
+            if (nx < 0 || nx >= N || ny < 0 || ny >= M)
                 continue;
 
-            d[next.second] = d[cur.second] + next.first;
-            pq.push({ d[next.second], next.second });
+            if (d[nx][ny] <= d[x][y] + board[nx][ny])
+                continue;
+
+            d[nx][ny] = d[x][y] + board[nx][ny];
+            pq.push({ d[nx][ny], nx, ny });
         }
     }
 
-    abSum += d[N];
-    baSum += d[1] + d[a];
-
-    if (abSum >= 0x3f3f3f3f && baSum >= 0x3f3f3f3f)
-        cout << -1;
-    else
-        cout << min(abSum, baSum);
+    cout << d[N - 1][M - 1];
 
     return 0;
 }
