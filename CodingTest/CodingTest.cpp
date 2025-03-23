@@ -1,14 +1,15 @@
 ﻿#include <iostream>
 #include <vector>
 #include <algorithm>
-#include <string>
+#include <unordered_map>
 
 using namespace std;
 
-vector<int> failure(string s)
+vector<int> failure(const string& s)
 {
-    vector<int> f((int)s.size());
     int j = 0;
+    vector<int> f((int)s.size());
+
     for (int i = 1; i < (int)s.size(); ++i)
     {
         while (j > 0 && s[i] != s[j])
@@ -20,46 +21,88 @@ vector<int> failure(string s)
     return f;
 }
 
+bool solve(const vector<int>& f, const string& A, const string& B)
+{
+    int j = 0; 
+    int count = 0;  // 1이어야 함.
+
+    for (int i = 0; i < (int)A.size(); ++i)
+    {
+        while (j > 0 && A[i] != B[j])
+            j = f[j - 1];
+        if (A[i] == B[j])
+            ++j;
+        if (j == B.size())
+        {
+            count++;
+            j = f[j - 1];
+        }
+    }
+
+    return count == 1;
+}
+
+string shift(const string& s, unordered_map<char, int>& AMap, const string& A)
+{
+    string temp;
+    for (char c : s)
+    {
+        int now = AMap[c];
+        now = now + 1 < A.size() ? now + 1 : 0;
+
+        temp.push_back(A[now]);
+    }
+
+    return temp;
+}
+
 int main()
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    string T, P;
-
-    getline(cin, T);
-    getline(cin, P);
-
-    vector<int> f = failure(P);
-    vector<int> F(T.size());      // T와 P로 만든 실패함수 느낌
-
-    int j = 0;
-    for (int i = 0; i < (int)T.size(); ++i)
+    int tc;
+    cin >> tc;
+    string A, W, S;
+    while (tc--)
     {
-        while (j > 0 && T[i] != P[j])
-            j = f[j - 1];
-        if (T[i] == P[j])
-            F[i] = ++j;
-        
-        if (j == P.size())
-            j = f[j - 1];
-    }
+        vector<int> ans;
+        cin >> A >> W >> S;
 
-    int count = 0;
-    vector<int> index;
-    for (int i = 0; i < (int)F.size(); ++i)
-    {
-        if (F[i] == P.size())
+        unordered_map<char, int> AMap;
+        for (int i = 0; i < (int)A.size(); ++i)
         {
-            ++count;
-            index.push_back(i - P.size() + 2);     // 문자의 끝 주소이기 때문에 (크기 - 1)만큼 빼준다. 또한 문제에서 원하는 것은 1-indexed이기 때문에 + 1을 한번 더 해준다.
+            AMap[A[i]] = i;
         }
-    }
 
-    cout << count << '\n';
-    for (int i : index)
-    {
-        cout << i << ' ';   
+        vector<int> f = failure(W);
+
+        if (solve(f, S, W) == true)
+            ans.push_back(0);
+
+        string sW = W;
+        for (int i = 1; i < A.size(); ++i)
+        {
+            sW = shift(sW, AMap, A);
+
+            if (solve(f, S, sW) == true)
+                ans.push_back(i);
+        }
+
+        if (ans.size() == 0)
+            cout << "no solution" << "\n";
+        else if (ans.size() == 1)
+            cout << "unique: " << ans.front() << "\n";
+
+        else
+        {
+            cout << "ambiguous: ";
+            for (int i : ans)
+            {
+                cout << i << " ";
+            }
+            cout << '\n';
+        }
     }
 
     return 0;
