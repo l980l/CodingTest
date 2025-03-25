@@ -1,59 +1,39 @@
 ﻿#include <iostream>
-#include <vector>
 #include <algorithm>
-#include <unordered_map>
 
 using namespace std;
 
-vector<int> failure(const string& s)
+int unused = 2;
+const int mx = 500 * 10000 + 5;
+int nxt[mx][26];
+
+int c2i(char c)
 {
-    int j = 0;
-    vector<int> f((int)s.size());
-
-    for (int i = 1; i < (int)s.size(); ++i)
-    {
-        while (j > 0 && s[i] != s[j])
-            j = f[j - 1];
-        if (s[i] == s[j])
-            f[i] = ++j;
-    }
-
-    return f;
+    return c - 'a';
 }
 
-bool solve(const vector<int>& f, const string& A, const string& B)
+void insert(string& s)
 {
-    int j = 0; 
-    int count = 0;  // 1이어야 함.
-
-    for (int i = 0; i < (int)A.size(); ++i)
+    int cur = 1;
+    for (auto c : s)
     {
-        while (j > 0 && A[i] != B[j])
-            j = f[j - 1];
-        if (A[i] == B[j])
-            ++j;
-        if (j == B.size())
-        {
-            count++;
-            j = f[j - 1];
-        }
+        if (nxt[cur][c2i(c)] == -1)
+            nxt[cur][c2i(c)] = unused++;
+        cur = nxt[cur][c2i(c)];
     }
-
-    return count == 1;
 }
 
-string shift(const string& s, unordered_map<char, int>& AMap, const string& A)
+bool find(string& s)
 {
-    string temp;
-    for (char c : s)
+    int cur = 1;
+    for (auto c : s)
     {
-        int now = AMap[c];
-        now = now + 1 < A.size() ? now + 1 : 0;
-
-        temp.push_back(A[now]);
+        if (nxt[cur][c2i(c)] == -1)
+            return false;
+        cur = nxt[cur][c2i(c)];
     }
 
-    return temp;
+    return true;
 }
 
 int main()
@@ -61,49 +41,29 @@ int main()
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int tc;
-    cin >> tc;
-    string A, W, S;
-    while (tc--)
+    for (int i = 0; i < mx; ++i)
     {
-        vector<int> ans;
-        cin >> A >> W >> S;
-
-        unordered_map<char, int> AMap;
-        for (int i = 0; i < (int)A.size(); ++i)
-        {
-            AMap[A[i]] = i;
-        }
-
-        vector<int> f = failure(W);
-
-        if (solve(f, S, W) == true)
-            ans.push_back(0);
-
-        string sW = W;
-        for (int i = 1; i < A.size(); ++i)
-        {
-            sW = shift(sW, AMap, A);
-
-            if (solve(f, S, sW) == true)
-                ans.push_back(i);
-        }
-
-        if (ans.size() == 0)
-            cout << "no solution" << "\n";
-        else if (ans.size() == 1)
-            cout << "unique: " << ans.front() << "\n";
-
-        else
-        {
-            cout << "ambiguous: ";
-            for (int i : ans)
-            {
-                cout << i << " ";
-            }
-            cout << '\n';
-        }
+        fill(nxt[i], nxt[i] + 26, -1);
     }
+
+    int N, M;
+    cin >> N >> M;
+    for (int i = 0; i < N; ++i)
+    {
+        string temp;
+        cin >> temp;
+        insert(temp);
+    }
+
+    int result = 0;
+    while (M--)
+    {
+        string temp;
+        cin >> temp;
+        result += find(temp);
+    }
+
+    cout << result;
 
     return 0;
 }
