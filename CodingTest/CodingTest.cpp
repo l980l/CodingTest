@@ -1,39 +1,38 @@
 ﻿#include <iostream>
-#include <algorithm>
 
 using namespace std;
 
 int unused = 2;
-const int mx = 500 * 10000 + 5;
-int nxt[mx][26];
+const int mx = 10 * 10000 + 5;
+bool chk[mx];
+int nxt[mx][10];
 
 int c2i(char c)
 {
-    return c - 'a';
+    return c - '0';
 }
 
-void insert(string& s)
+bool insert(string& s)
 {
     int cur = 1;
+    bool ans = false;
+
     for (auto c : s)
     {
         if (nxt[cur][c2i(c)] == -1)
+        {
             nxt[cur][c2i(c)] = unused++;
-        cur = nxt[cur][c2i(c)];
-    }
-}
+            ans = true;
+        }
 
-bool find(string& s)
-{
-    int cur = 1;
-    for (auto c : s)
-    {
-        if (nxt[cur][c2i(c)] == -1)
-            return false;
         cur = nxt[cur][c2i(c)];
+
+        if (chk[cur] == true)
+            break;
     }
 
-    return true;
+    chk[cur] = true;
+    return ans;
 }
 
 int main()
@@ -41,29 +40,36 @@ int main()
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    for (int i = 0; i < mx; ++i)
-    {
-        fill(nxt[i], nxt[i] + 26, -1);
-    }
+    int t;
+    cin >> t;
 
-    int N, M;
-    cin >> N >> M;
-    for (int i = 0; i < N; ++i)
+    while (t--)
     {
-        string temp;
-        cin >> temp;
-        insert(temp);
-    }
+        int n;
+        cin >> n;
 
-    int result = 0;
-    while (M--)
-    {
-        string temp;
-        cin >> temp;
-        result += find(temp);
-    }
+        unused = 2;
+        for (int i = 0; i < mx; ++i)
+        {
+            chk[i] = false;
+            fill(nxt[i], nxt[i] + 10, -1);
+        }
 
-    cout << result;
+        bool result = true;
+        while (n--)
+        {
+            string temp;
+            cin >> temp;
+
+            if (insert(temp) == false)
+            {
+                result = false;
+            }
+        }
+
+        string temp = result ? "YES" : "NO";
+        cout << temp << '\n';
+    }
 
     return 0;
 }
