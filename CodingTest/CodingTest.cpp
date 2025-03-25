@@ -1,37 +1,58 @@
 ﻿#include <iostream>
+#include <algorithm>
 
 using namespace std;
 
 int unused = 2;
-const int mx = 10 * 10000 + 5;
-bool chk[mx];
-int nxt[mx][10];
+const int mx = 100000 * 10 + 5;
+int chk[mx];
+int nxt[mx][26];
 
 int c2i(char c)
 {
-    return c - '0';
+    return c - 'a';
 }
 
-bool insert(string& s)
+string insert(string& s)
 {
     int cur = 1;
-    bool ans = false;
+    bool isPrefix = true;
 
+    string ans;
     for (auto c : s)
     {
         if (nxt[cur][c2i(c)] == -1)
         {
+            if (isPrefix == true)
+            {
+                isPrefix = false;
+                ans.push_back(c);
+            }
             nxt[cur][c2i(c)] = unused++;
-            ans = true;
         }
-
+        else
+            ans.push_back(c);
+        
         cur = nxt[cur][c2i(c)];
+    }
+    ++chk[cur];
 
-        if (chk[cur] == true)
-            break;
+    if (ans == s)
+    {
+        if (chk[cur] != 1)
+        {
+            int ori = chk[cur];
+            string temp;
+            while (ori > 0)
+            {
+                temp.push_back(ori % 10 + '0');
+                ori /= 10;
+            }
+            reverse(temp.begin(), temp.end());
+            ans.append(temp);
+        }
     }
 
-    chk[cur] = true;
     return ans;
 }
 
@@ -40,35 +61,20 @@ int main()
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int t;
-    cin >> t;
-
-    while (t--)
+    for (int i = 0; i < mx; ++i)
     {
-        int n;
-        cin >> n;
+        chk[i] = 0;
+        fill(nxt[i], nxt[i] + 26, -1);
+    }
 
-        unused = 2;
-        for (int i = 0; i < mx; ++i)
-        {
-            chk[i] = false;
-            fill(nxt[i], nxt[i] + 10, -1);
-        }
+    int N;
+    cin >> N;
+    while (N--)
+    {
+        string temp;
+        cin >> temp;
 
-        bool result = true;
-        while (n--)
-        {
-            string temp;
-            cin >> temp;
-
-            if (insert(temp) == false)
-            {
-                result = false;
-            }
-        }
-
-        string temp = result ? "YES" : "NO";
-        cout << temp << '\n';
+        cout << insert(temp) << '\n';
     }
 
     return 0;
