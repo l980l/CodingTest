@@ -4,51 +4,41 @@
 
 using namespace std;
 
-int n, c, x;
-vector<int> h;
-
-bool func(int step)
-{
-    int idx = 0;
-    int count = 0;
-    
-    while (idx < n)
-    {
-        idx = lower_bound(h.begin() + idx, h.end(), (h.front() + step)) - h.begin();
-        ++count;
-    }
-
-    return count >= c;
-}
-
 int main()
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    cin >> n >> c;
-    for (int i = 0; i < n; ++i)
+    int T, N, M, Result;
+
+    cin >> T;
+
+    while (T--)
     {
-        cin >> x;
-        h.push_back(x);
+        cin >> N;
+
+        vector<int> Coins(N);
+
+        for (int i = 0; i < N; ++i)
+        {
+            cin >> Coins[i];
+        }
+
+        cin >> M;
+
+        vector<int> DP(M + 1, 0); // 음... 어떤 DP로 해야되지? 음... i를 표현할 수 있는 방법의 수를 저장하면 되려나? 
+        DP[0] = 1;
+
+        for (int i = 0; i < N; ++i)
+        {
+            for (int j = Coins[i]; j <= M; ++j)
+            {
+                DP[j] += DP[j - Coins[i]];
+            }
+        }
+
+        cout << DP[M] << '\n';
     }
-
-    sort(h.begin(), h.end());
-
-    int st = 0;
-    int en = h.back();
-
-    while (st < en)
-    {
-        int mid = (st + en + 1) / 2;
-
-        if (func(mid))
-            st = mid;
-        else
-            en = mid - 1;
-    }
-
-    cout << st;
 
     return 0;
 }
