@@ -1,6 +1,6 @@
 ﻿#include <iostream>
 #include <vector>
-#include <stack>
+#include <queue>
 #include <algorithm>
 
 using namespace std;
@@ -10,35 +10,32 @@ int main()
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int N;
-    cin >> N;
+    int N, L, A;
+    cin >> N >> L;
 
-    vector<int> Nums(N, -1);
-    stack<pair<int, int>> Stack;
+    vector<int> Result(N);
+    priority_queue<pair<int,int>,vector<pair<int,int>>, greater<>> PQ;
 
-    int A;
     for (int i = 0; i < N; ++i)
     {
         cin >> A;
+        Result[i] = A;
 
-        while (!Stack.empty())
+        PQ.push({ A,i });
+
+        while (!PQ.empty())
         {
-            if (Stack.top().first < A)
-            {
-                auto pair = Stack.top();
-                Stack.pop();
-
-                Nums[pair.second] = A;
-            }
-
+            if (PQ.top().second < i - L + 1)
+                PQ.pop();
             else
+            {
+                Result[i] = PQ.top().first;
                 break;
+            }
         }
-
-        Stack.push({ A, i });
     }
 
-    for (int i : Nums)
+    for (int i : Result)
     {
         cout << i << ' ';
     }
