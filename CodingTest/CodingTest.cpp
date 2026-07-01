@@ -1,6 +1,5 @@
-﻿#include <iostream>
+#include <iostream>
 #include <vector>
-#include <queue>
 #include <algorithm>
 
 using namespace std;
@@ -10,34 +9,44 @@ int main()
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int N, L, A;
-    cin >> N >> L;
+    int T, N, M;
+    cin >> T;
 
-    vector<int> Result(N);
-    priority_queue<pair<int,int>,vector<pair<int,int>>, greater<>> PQ;
-
-    for (int i = 0; i < N; ++i)
+    for (int tcn = 1; tcn <= T; ++tcn)
     {
-        cin >> A;
-        Result[i] = A;
+        cin >> N >> M;
+        vector<int> A(N);
+        vector<int> B(M);
 
-        PQ.push({ A,i });
-
-        while (!PQ.empty())
+        for (int i = 0; i < N; ++i)
         {
-            if (PQ.top().second < i - L + 1)
-                PQ.pop();
-            else
-            {
-                Result[i] = PQ.top().first;
-                break;
-            }
+            cin >> A[i];
         }
-    }
 
-    for (int i : Result)
-    {
-        cout << i << ' ';
+        for (int i = 0; i < M; ++i)
+        {
+            cin >> B[i];
+        }
+
+        if (N > M)
+        {
+            swap(N, M);
+            swap(A, B);
+        }
+
+        int mx = 0;
+        for (int i = 0; i < M - (N - 1); ++i)
+        {
+            int sum = 0;
+            for (int j = 0; j < N; ++j)
+            {
+                sum += A[j] * B[i + j];
+            }
+
+            mx = max(mx, sum);
+        }
+
+        cout << '#' << tcn << ' ' << mx << '\n';
     }
 
     return 0;
