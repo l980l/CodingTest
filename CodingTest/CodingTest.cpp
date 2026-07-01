@@ -4,49 +4,59 @@
 
 using namespace std;
 
+void rot(vector<vector<int>>& board, int N)
+{
+    vector<vector<int>> temp = board;
+    for (int i = 0; i < N; ++i)
+    {
+        for (int j = 0; j < N; ++j)
+        {
+            board[i][j] = temp[N - 1 - j][i];
+        }
+    }
+}
+
 int main()
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int T, N, M;
+    int T, N;
     cin >> T;
 
     for (int tcn = 1; tcn <= T; ++tcn)
     {
-        cin >> N >> M;
-        vector<int> A(N);
-        vector<int> B(M);
+        cin >> N;
 
+        vector<vector<int>> board(N, vector<int>(N));
         for (int i = 0; i < N; ++i)
         {
-            cin >> A[i];
-        }
-
-        for (int i = 0; i < M; ++i)
-        {
-            cin >> B[i];
-        }
-
-        if (N > M)
-        {
-            swap(N, M);
-            swap(A, B);
-        }
-
-        int mx = 0;
-        for (int i = 0; i < M - (N - 1); ++i)
-        {
-            int sum = 0;
             for (int j = 0; j < N; ++j)
             {
-                sum += A[j] * B[i + j];
+                cin >> board[i][j];
             }
-
-            mx = max(mx, sum);
         }
 
-        cout << '#' << tcn << ' ' << mx << '\n';
+        vector<vector<vector<int>>> result;
+        for (int i = 0; i < 3; ++i)
+        {
+            rot(board, N);
+            result.push_back(board);
+        }
+
+        cout << '#' << tcn << '\n';
+        for (int r = 0; r < N; ++r)
+        {
+            for (int i = 0; i < 3; ++i)
+            {
+                for (int c = 0; c < N; ++c)
+                {
+                    cout << result[i][r][c];
+                }
+                cout << ' ';
+            }
+            cout << '\n';
+        }
     }
 
     return 0;
