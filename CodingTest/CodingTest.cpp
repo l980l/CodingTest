@@ -1,62 +1,102 @@
 #include <iostream>
 #include <vector>
+#include <queue>
 #include <algorithm>
 
 using namespace std;
 
-void rot(vector<vector<int>>& board, int N)
-{
-    vector<vector<int>> temp = board;
-    for (int i = 0; i < N; ++i)
-    {
-        for (int j = 0; j < N; ++j)
-        {
-            board[i][j] = temp[N - 1 - j][i];
-        }
-    }
-}
+#define X first
+#define Y second
+
+int dx[] = { 1,0,-1,0,1,1,-1,-1 };
+int dy[] = { 0,-1,0,1,1,-1,1,-1 };
 
 int main()
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    int T, N;
-    cin >> T;
+    int t, n;
+    cin >> t;
 
-    for (int tcn = 1; tcn <= T; ++tcn)
+    for (int tcn = 1; tcn <= t; ++tcn)
     {
-        cin >> N;
+        cin >> n;
 
-        vector<vector<int>> board(N, vector<int>(N));
-        for (int i = 0; i < N; ++i)
+        vector<string> board(n);
+
+        for (int i = 0; i < n; ++i)
         {
-            for (int j = 0; j < N; ++j)
-            {
-                cin >> board[i][j];
-            }
+            cin >> board[i];
         }
 
-        vector<vector<vector<int>>> result;
-        for (int i = 0; i < 3; ++i)
+        for (int i = 0; i < n; ++i)
         {
-            rot(board, N);
-            result.push_back(board);
-        }
-
-        cout << '#' << tcn << '\n';
-        for (int r = 0; r < N; ++r)
-        {
-            for (int i = 0; i < 3; ++i)
+            for (int j = 0; j < n; ++j)
             {
-                for (int c = 0; c < N; ++c)
+                if (board[i][j] == '*')
                 {
-                    cout << result[i][r][c];
+                    for (int k = 0; k < 8; ++k)
+                    {
+                        int nx = i + dx[k];
+                        int ny = j + dy[k];
+
+                        if (nx < 0 || nx >= n || ny < 0 || ny >= n || board[nx][ny] != '.')
+                            continue;
+                     
+                        board[nx][ny] = 'b';
+                    }
                 }
-                cout << ' ';
             }
-            cout << '\n';
         }
+
+        vector<vector<bool>> visit(n, vector<bool>(n));
+        queue<pair<int, int>> q;
+        int count = 0;
+
+        for (int i = 0; i < n; ++i)
+        {
+            for (int j = 0; j < n; ++j)
+            {
+                if (board[i][j] == '.' && visit[i][j] == false)
+                {
+                    ++count;
+                    q.push({ i,j });
+                    visit[i][j] = true;
+
+                    while (!q.empty())
+                    {
+                        auto p = q.front();
+                        q.pop();
+
+                        for (int k = 0; k < 8; ++k)
+                        {
+                            int nx = p.X + dx[k];
+                            int ny = p.Y + dy[k];
+
+                            if (nx < 0 || nx >= n || ny < 0 || ny >= n || board[nx][ny] == '*' || visit[nx][ny])
+                                continue;
+
+                            visit[nx][ny] = true;
+
+                            if(board[nx][ny] == '.')
+                                q.push({ nx,ny });
+                        }
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < n; ++i)
+        {
+            for (int j = 0; j < n; ++j)
+            {
+                if (board[i][j] == 'b' && visit[i][j] == false)
+                    ++count;
+            }
+        }
+
+        cout << '#' << tcn << ' ' << count << '\n';
     }
 
     return 0;
