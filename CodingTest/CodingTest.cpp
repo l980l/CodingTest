@@ -5,86 +5,71 @@
 
 using namespace std;
 
-int dx[] = { 1,0,-1,0 };
-int dy[] = { 0,-1,0,1 };
+int dx[] = { 1, 0, -1, 0 };
+int dy[] = { 0, -1, 0, 1 };
+vector<int> biIdx[8] = {{},{0, 1, 2, 3},{0, 2},{1, 3},{2, 3},{0, 3},{0, 1},{1, 2}};
+int neighbor[4][4] = {{1,2,4,7}, {1,3,4,5}, {1,2,5,6}, {1,3,6,7}};
 
 #define X first
 #define Y second
 
-int main()
-{
-	ios::sync_with_stdio(0);
-	cin.tie(0);
+int main() {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
 
-	int t, n;
-	cin >> t;
+    int t, n, m, r, c, l;
+    cin >> t;
 
-	for (int tcn = 1; tcn <= t; ++tcn)
-	{
-		cin >> n;
-		vector<vector<int>> board(n, vector<int>(n));
-		vector<vector<bool>> visit(n,vector<bool>(n));
-		for (int i = 0; i < n; ++i)
-		{
-			for (int j = 0; j < n; ++j)
-			{
-				cin >> board[i][j];
-			}
-		}
+    for (int tcn = 1; tcn <= t; ++tcn)
+    {
+        cin >> n >> m >> r >> c >> l;
+        vector<vector<int>> board(n, vector<int>(m));
+        vector<vector<int>> dist(n, vector<int>(m, -1));
 
-		int maxSize = 0;
-		int roomNum = 0;
-		queue<pair<int, int>> q;
-		for (int i = 0; i < n; ++i)
-		{
-			for (int j = 0; j < n; ++j)
-			{
-				if (visit[i][j])
-					continue;
-				visit[i][j] = true;
-				q.push({ i, j });
-				int curSize = 1;
-				int curRN = board[i][j];
+        for (int i = 0; i < n; ++i)
+        {
+            for (int j = 0; j < m; ++j)
+            {
+                cin >> board[i][j];
+            }
+        }
 
-				while (!q.empty())
-				{
-					auto p = q.front();
-					int rn = board[p.X][p.Y];
-					q.pop();
+        int result = 1;
+        dist[r][c] = 1;
+        queue<pair<int, int>> q;
+        q.push({ r,c });
 
-					for (int dir = 0; dir < 4; ++dir)
-					{
-						int nx = p.X + dx[dir];
-						int ny = p.Y + dy[dir];
+        while (!q.empty())
+        {
+            auto p = q.front();
+            q.pop();
 
-						if (nx < 0 || nx >= n || ny < 0 || ny >= n || visit[nx][ny])
-							continue;
-						if (board[nx][ny] + 1 != rn && board[nx][ny] - 1 != rn)
-							continue;
-						
-						if (board[nx][ny] + 1 == rn)
-							curRN = rn - 1;
+            if (dist[p.X][p.Y] == l)
+                break;
 
-						++curSize;
-						visit[nx][ny] = true;
-						q.push({ nx,ny });
-					}
-				}
+            for (int i : biIdx[board[p.X][p.Y]])
+            {
+                int nx = p.X + dx[i];
+                int ny = p.Y + dy[i];
 
-				if (maxSize < curSize)
-				{
-					maxSize = curSize;
-					roomNum = curRN;
-				}
-				else if (maxSize == curSize && roomNum > curRN)
-				{
-					roomNum = curRN;
-				}
-			}
-		}
+                if (nx < 0 || nx >= n || ny < 0 || ny >= m || dist[nx][ny] != -1)
+                    continue;
 
-		cout << "#" << tcn << " " << roomNum << " " << maxSize << "\n";
-	}
+                for (int j = 0; j < 4; ++j)
+                {
+                    if (neighbor[i][j] == board[nx][ny])
+                    {
+                        dist[nx][ny] = dist[p.X][p.Y] + 1;
+                        q.push({ nx,ny });
+                        ++result;
+                        break;
+                    }
+                }
+            }
+        }
 
-	return 0;
+        cout << "#" << tcn << " " << result << "\n";
+    }
+
+    return 0;
 }
